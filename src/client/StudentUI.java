@@ -1,20 +1,16 @@
 package client;
- 
+
 import features.KeyLogger;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,11 +21,21 @@ import javax.swing.JList;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 
-public class StudentUI extends javax.swing.JFrame { 
-    DefaultListModel model = new DefaultListModel();
-    PrintWriter writer;
-    Socket socket; 
-    final User user;
+public class StudentUI extends javax.swing.JFrame {
+
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/exam_management";
+    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+    private DefaultListModel model = new DefaultListModel();
+    private PrintWriter writer;
+    private Socket socket;
+    private final User user;
+
+    private String examName;
+    private String questions;
+    private String facultyUsername;
 
     public StudentUI(final User user) {
         this.user = user;
@@ -40,14 +46,32 @@ public class StudentUI extends javax.swing.JFrame {
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
             writer.println(user.rollNum); //user id
-
-        } catch (IOException ex) {
-            Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
         }
-        
+
         ChatClient client = new ChatClient("localhost", 8989);
-        new ClientReadHandler(socket, client,model, jList1).start();
-        
+        new ClientReadHandler(socket, client, model, studentUIChatBox).start();
+        loadDataFromDatabase();
+    }
+
+    private void loadDataFromDatabase() {
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
+            Class.forName(JDBC_DRIVER);
+            System.out.println("Creating connection...");
+            System.out.println("Creating statement...");
+
+            String sql = "SELECT examName, questions, facultyUsername FROM exams WHERE examId='" + user.examId + "'";
+            ResultSet rs = statement.executeQuery(sql);
+            rs.next();
+            examName = rs.getString("examName");
+            facultyUsername = rs.getString("facultyUsername");
+
+            studentUIDisplayExamID.setText("Exam ID: " + user.examId);
+            studentUIDisplayExamName.setText("Exam Name: " + examName);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -55,47 +79,48 @@ public class StudentUI extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
+        studentUIChatBox = new javax.swing.JList<>();
+        studentUIUploadPdfButton = new javax.swing.JButton();
+        studentUIChatTextBox = new javax.swing.JTextField();
+        studentUISendButton = new javax.swing.JButton();
         canvas1 = new java.awt.Canvas();
-        jToggleButton1 = new javax.swing.JToggleButton();
-        studentUIList = new javax.swing.JComboBox<>();
+        studentUIExitButton = new javax.swing.JToggleButton();
+        studentUIDisplayExamName = new javax.swing.JLabel();
+        studentUIDisplayExamID = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        jScrollPane1.setViewportView(jList1);
+        jScrollPane1.setViewportView(studentUIChatBox);
 
-        jButton1.setText("UPLOAD PDF");
-        jButton1.setToolTipText("");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        studentUIUploadPdfButton.setText("UPLOAD PDF");
+        studentUIUploadPdfButton.setToolTipText("");
+        studentUIUploadPdfButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                studentUIUploadPdfButtonActionPerformed(evt);
             }
         });
 
-        jButton2.setText("SEND");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        studentUISendButton.setText("SEND");
+        studentUISendButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                studentUISendButtonActionPerformed(evt);
             }
         });
 
-        jToggleButton1.setSelected(true);
-        jToggleButton1.setText("EXIT");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        studentUIExitButton.setSelected(true);
+        studentUIExitButton.setText("EXIT");
+        studentUIExitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                studentUIExitButtonActionPerformed(evt);
             }
         });
 
-        studentUIList.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                studentUIListActionPerformed(evt);
-            }
-        });
+        studentUIDisplayExamName.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        studentUIDisplayExamName.setText("Exam Name: ");
+
+        studentUIDisplayExamID.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        studentUIDisplayExamID.setText("Exam ID: ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -103,24 +128,30 @@ public class StudentUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(studentUIUploadPdfButton)
                 .addGap(69, 69, 69))
             .addGroup(layout.createSequentialGroup()
                 .addGap(280, 280, 280)
-                .addComponent(jToggleButton1)
+                .addComponent(studentUIExitButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(170, 170, 170)
-                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(170, 170, 170)
+                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(studentUIDisplayExamID))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(studentUIDisplayExamName)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 333, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(studentUIList, 0, 191, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(studentUISendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(23, 23, 23))
         );
         layout.setVerticalGroup(
@@ -131,53 +162,53 @@ public class StudentUI extends javax.swing.JFrame {
                         .addGap(34, 34, 34)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(107, 107, 107)
-                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(studentUIList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
+                        .addGap(9, 9, 9)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(studentUIDisplayExamID)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(studentUIDisplayExamName)
+                                .addGap(36, 36, 36))
+                            .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                    .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(studentUISendButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
+                .addComponent(studentUIUploadPdfButton)
                 .addGap(5, 5, 5)
-                .addComponent(jToggleButton1)
+                .addComponent(studentUIExitButton)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        writer.println(jTextField1.getText());
-        
-        model.addElement(jTextField1.getText());
-        jList1.setModel(model);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void studentUISendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUISendButtonActionPerformed
+        String text = "@" + facultyUsername + " " + studentUIChatTextBox.getText();
+        writer.println(text);
+        model.addElement(text);
+        studentUIChatBox.setModel(model);
+    }//GEN-LAST:event_studentUISendButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void studentUIUploadPdfButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIUploadPdfButtonActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            
+
             System.out.println("Selected file: " + selectedFile.getAbsolutePath());
             System.out.println("Selected file name: " + selectedFile.getName());
             System.out.println("Selected file path: " + selectedFile.getPath());
-            new FileUpload(user).uploadFile(selectedFile.getPath(),selectedFile.getPath());
+            new FileUpload(user).uploadFile(selectedFile.getPath(), selectedFile.getPath());
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-          new FileUpload(user).uploadFile("", user.keyLogFile);
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
-
-    private void studentUIListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIListActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_studentUIListActionPerformed
+    private void studentUIExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIExitButtonActionPerformed
+        new FileUpload(user).uploadFile("", user.keyLogFile);
+    }//GEN-LAST:event_studentUIExitButtonActionPerformed
 
     public static void main(String args[]) {
         try {
@@ -204,15 +235,15 @@ public class StudentUI extends javax.swing.JFrame {
         });
     }
 
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Canvas canvas1;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JList<String> jList1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JToggleButton jToggleButton1;
-    private javax.swing.JComboBox<String> studentUIList;
+    private javax.swing.JList<String> studentUIChatBox;
+    private javax.swing.JTextField studentUIChatTextBox;
+    private javax.swing.JLabel studentUIDisplayExamID;
+    private javax.swing.JLabel studentUIDisplayExamName;
+    private javax.swing.JToggleButton studentUIExitButton;
+    private javax.swing.JButton studentUISendButton;
+    private javax.swing.JButton studentUIUploadPdfButton;
     // End of variables declaration//GEN-END:variables
 }
