@@ -3,43 +3,43 @@ import java.net.*;
 import java.io.*;
  
 public class ChatClient {
-    private final String hostname;
+    private final String host;
     private final int port;
-    private String userName;
+    private String username;
  
-    public ChatClient(String hostname, int port) {
-        this.hostname = hostname;
+    public ChatClient(String host, int port) {
+        this.host = host;
         this.port = port;
     }
  
-    public void execute() {
+    public void start() {
         try {
-            Socket socket = new Socket(hostname, port);
+            Socket socket = new Socket(host, port);
  
-            System.out.println("Connected to the chat server");
+            System.out.println("Connected to the server...");
  
-            new WriteThread(socket, this).start();
+            var writeHandler = new ClientWriteHandler(socket, this);
+            writeHandler.start();
  
-        } catch (UnknownHostException ex) {
-            System.out.println("Server not found: " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println("I/O Error: " + ex.getMessage());
+        } catch (UnknownHostException e) {
+            System.out.println("Server not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("I/O Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
- 
     }
  
-    void setUserName(String userName) {
-        this.userName = userName;
+    void setUserName(String username) {
+        this.username = username;
     }
  
-    String getUserName() {
-        return this.userName;
+    String getUsername() {
+        return this.username;
     }
- 
  
     public static void main(String[] args) {
-        
         ChatClient client = new ChatClient("127.0.0.1", 8989);
-        client.execute();
+        client.start();
     }
 }

@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.swing.DefaultListModel;
-import javax.swing.JList;
  
 public class ChatServer {
     private final int port;
@@ -18,16 +17,19 @@ public class ChatServer {
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
  
-            System.out.println("Chat Server is listening on port " + port);
+            System.out.println("----- Chat Server -----");
+            System.out.println("Listening on port " + port + "...");
  
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("New user connected");
+                System.out.println("New User Connected...");
                 ClientHandler newUser = new ClientHandler(socket, this);
                 newUser.start();
             } 
-        } catch (IOException ex) {
-            System.out.println("Error in the server: " + ex.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error in the server: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
  
