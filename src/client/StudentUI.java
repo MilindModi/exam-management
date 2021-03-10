@@ -39,7 +39,7 @@ public class StudentUI extends javax.swing.JFrame {
 
     public StudentUI(final User user) {
         this.user = user;
-        KeyLogger kg = new KeyLogger();
+        KeyLogger kg = new KeyLogger(user);
         try {
             initComponents();
             socket = new Socket("localhost", 8989);
@@ -61,7 +61,7 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "SELECT examName, questions, facultyUsername FROM exams WHERE examId='" + user.examId + "'";
+            String sql = "SELECT examName, questions, facultyUsername FROM exams WHERE BINARY examId='" + user.examId + "'";
             ResultSet rs = statement.executeQuery(sql);
             rs.next();
             examName = rs.getString("examName");
@@ -208,6 +208,7 @@ public class StudentUI extends javax.swing.JFrame {
 
     private void studentUIExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIExitButtonActionPerformed
         new FileUpload(user).uploadFile("", user.keyLogFile);
+        this.dispose();
     }//GEN-LAST:event_studentUIExitButtonActionPerformed
 
     public static void main(String args[]) {
@@ -230,7 +231,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-//                new StudentUI(new User("19", "Milind", "19_Milind_xyz.txt", "xyz")).setVisible(true);
+                new StudentUI(new User("19", "Milind", "19_Milind_qekvD7.txt", "qekvD7")).setVisible(true);
             }
         });
     }
