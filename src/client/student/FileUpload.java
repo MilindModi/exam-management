@@ -1,5 +1,6 @@
-package client;
+package client.student;
 
+import client.User;
 import java.io.*;
 import java.net.Socket;
 
@@ -21,7 +22,7 @@ public class FileUpload {
     
     public void uploadFile(String path,String fileName){ 
         try (Socket socket = new Socket(url, port)) {
-            File file = new File( fileName);
+            File file = new File(fileName);
 
             OutputStream os = socket.getOutputStream();
             DataOutputStream dos = new DataOutputStream(os);

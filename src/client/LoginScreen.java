@@ -1,5 +1,8 @@
 package client;
 
+import client.faculty.FacultyUI;
+import client.faculty.CreateExam;
+import client.student.StudentUI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;

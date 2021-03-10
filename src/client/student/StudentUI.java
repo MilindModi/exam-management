@@ -1,6 +1,9 @@
-package client;
+package client.student;
 
-import features.KeyLogger;
+import client.User;
+import client.chat.ChatClient;
+import client.chat.ClientReadHandler;
+import logger.KeyLogger;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.*;
@@ -18,6 +21,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 
@@ -38,6 +42,14 @@ public class StudentUI extends javax.swing.JFrame {
     private String facultyUsername;
 
     public StudentUI(final User user) {
+        
+        //Do not delete this lines
+//        GraphicsEnvironment graphics =
+//        GraphicsEnvironment.getLocalGraphicsEnvironment();
+//        GraphicsDevice device = graphics.getDefaultScreenDevice();
+//        this.setExtendedState(JFrame.MAXIMIZED_BOTH);  
+         //till here
+
         this.user = user;
         KeyLogger kg = new KeyLogger(user);
         try {
@@ -50,9 +62,13 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Error: " + e.getMessage());
         }
 
+        studentUIDisplayQuestion.setHighlighter(null);
+        
         ChatClient client = new ChatClient("localhost", 8989);
-        new ClientReadHandler(socket, client, model, studentUIChatBox).start();
+        new ClientReadHandler(socket, client, model, studentUIChatBox,null).start();
         loadDataFromDatabase();
+        
+//        device.setFullScreenWindow(this); do not delete  this line
     }
 
     private void loadDataFromDatabase() {
@@ -66,9 +82,13 @@ public class StudentUI extends javax.swing.JFrame {
             rs.next();
             examName = rs.getString("examName");
             facultyUsername = rs.getString("facultyUsername");
+            questions = rs.getString("questions");
 
             studentUIDisplayExamID.setText("Exam ID: " + user.examId);
+            studentUIDisplayRollNum.setText("Roll Num: " + user.rollNum);
             studentUIDisplayExamName.setText("Exam Name: " + examName);
+            studentUIDisplayQuestion.setText(questions);
+            
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -87,6 +107,9 @@ public class StudentUI extends javax.swing.JFrame {
         studentUIExitButton = new javax.swing.JToggleButton();
         studentUIDisplayExamName = new javax.swing.JLabel();
         studentUIDisplayExamID = new javax.swing.JLabel();
+        studentUIDisplayRollNum = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        studentUIDisplayQuestion = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -122,6 +145,15 @@ public class StudentUI extends javax.swing.JFrame {
         studentUIDisplayExamID.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         studentUIDisplayExamID.setText("Exam ID: ");
 
+        studentUIDisplayRollNum.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        studentUIDisplayRollNum.setText("Roll Num:");
+
+        studentUIDisplayQuestion.setEditable(false);
+        studentUIDisplayQuestion.setColumns(20);
+        studentUIDisplayQuestion.setRows(5);
+        studentUIDisplayQuestion.setDragEnabled(true);
+        jScrollPane2.setViewportView(studentUIDisplayQuestion);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -133,19 +165,23 @@ public class StudentUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(280, 280, 280)
                 .addComponent(studentUIExitButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(367, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(170, 170, 170)
-                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(studentUIDisplayExamID))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(studentUIDisplayExamName)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 333, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(studentUIDisplayExamID)
+                            .addComponent(studentUIDisplayExamName)
+                            .addComponent(studentUIDisplayRollNum)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(135, 135, 135)
+                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
@@ -163,18 +199,22 @@ public class StudentUI extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(9, 9, 9)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(canvas1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(studentUIDisplayExamID)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(studentUIDisplayExamName)
-                                .addGap(36, 36, 36))
-                            .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(studentUIDisplayRollNum)
+                                .addGap(18, 18, 18)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(studentUISendButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
                 .addComponent(studentUIUploadPdfButton)
                 .addGap(5, 5, 5)
                 .addComponent(studentUIExitButton)
@@ -203,12 +243,20 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Selected file name: " + selectedFile.getName());
             System.out.println("Selected file path: " + selectedFile.getPath());
             new FileUpload(user).uploadFile(selectedFile.getPath(), selectedFile.getPath());
+            JOptionPane.showMessageDialog(this,"File uploaded sucessfully");
         }
     }//GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
 
     private void studentUIExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIExitButtonActionPerformed
-        new FileUpload(user).uploadFile("", user.keyLogFile);
-        this.dispose();
+      
+
+        int opt=JOptionPane.showConfirmDialog(this,"Are you sure?","Exit",JOptionPane.YES_NO_OPTION);  
+        if(opt == JOptionPane.YES_OPTION){  
+            new FileUpload(user).uploadFile("", "local\\"+user.keyLogFile);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.dispose();
+            System.exit(0);
+       }  
     }//GEN-LAST:event_studentUIExitButtonActionPerformed
 
     public static void main(String args[]) {
@@ -231,7 +279,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI(new User("19", "Milind", "19_Milind_qekvD7.txt", "qekvD7")).setVisible(true);
+                new StudentUI(new User("99", "mn", "5_Milind_qekvD7.txt", "HQUxLt")).setVisible(true);
             }
         });
     }
@@ -239,10 +287,13 @@ public class StudentUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Canvas canvas1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JList<String> studentUIChatBox;
     private javax.swing.JTextField studentUIChatTextBox;
     private javax.swing.JLabel studentUIDisplayExamID;
     private javax.swing.JLabel studentUIDisplayExamName;
+    private javax.swing.JTextArea studentUIDisplayQuestion;
+    private javax.swing.JLabel studentUIDisplayRollNum;
     private javax.swing.JToggleButton studentUIExitButton;
     private javax.swing.JButton studentUISendButton;
     private javax.swing.JButton studentUIUploadPdfButton;

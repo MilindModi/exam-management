@@ -42,11 +42,11 @@ public class FileRecieve {
                 final String rNum = dis.readUTF();
                 final String uName = dis.readUTF();
                 final String examId = dis.readUTF();
-                File theDir = new File("uploads/" + examId + "/");
+                File theDir = new File("uploads/" + examId + "/" + rNum +"/");
                 if (!theDir.exists()) {
                     theDir.mkdirs();
                 }
-                out = new FileOutputStream("uploads/" + examId + "/" + fName);
+                out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/"+ fName);
 
             } catch (FileNotFoundException ex) {
                 System.out.println("File not found. ");

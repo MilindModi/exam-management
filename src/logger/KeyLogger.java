@@ -1,4 +1,4 @@
-package features;
+package logger;
 
 import client.User;
 import org.jnativehook.GlobalScreen;
