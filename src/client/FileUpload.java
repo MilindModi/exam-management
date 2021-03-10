@@ -1,35 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package client;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
-import java.nio.charset.Charset;
 
-/**
- *
- * @author MODI
- */
 public class FileUpload {
-    String url ;
-    int port;
-    FileUpload(){
+    final String url ;
+    final int port;
+    final User user;
+    
+    public FileUpload(User user) {
         url = "127.0.0.1";
         port = 5000;
+        this.user = user;
     }
+    
     public static void main(String[] args) {
-        new FileUpload().uploadFile("","C:\\Users\\MODI\\Desktop\\19_MilindModi_OOAD_Sessional_1.pdf");
+        var user = new User("10", "Pradip", "10_Pradip_xyz.txt", "abc");
+        new FileUpload(user).uploadFile("", "C:\\Users\\Nirav Chavda\\Downloads\\Question Bank DAD - Digital Copy.docx");
     }
-    public void uploadFile( String path,String fileName){ 
+    
+    public void uploadFile(String path,String fileName){ 
         try (Socket socket = new Socket(url, port)) {
             File file = new File( fileName);
 
@@ -37,26 +27,31 @@ public class FileUpload {
             DataOutputStream dos = new DataOutputStream(os);
             
             BufferedOutputStream bos = new BufferedOutputStream(os);
-//            BufferedInputStream bis = new BufferedInputStream(new InputStream(socket.getInputStream()));
             long length = file.length();
-            byte[] bytes = new byte[16 * 1024];
+            byte[] bytes = new byte[4 * 1024];
             InputStream in = new FileInputStream(file);
             OutputStream out = socket.getOutputStream();
 
+            dos.writeLong(length);
             dos.writeUTF(file.getName());
-            dos.writeUTF("19");
+            dos.writeUTF(user.rollNum);
+            dos.writeUTF(user.name);
+            dos.writeUTF(user.examId);
             int count;
- 
-            while ((count = in.read(bytes)) > 0) {
+            
+            while ((count = in.read(bytes)) != -1) {
                 out.write(bytes, 0, count);
+                out.flush();
             }
+            
+            System.out.println("File uploaded Successfully!");
             
             out.close();
             in.close();
             socket.close();
         }
         catch(Exception e) { 
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }

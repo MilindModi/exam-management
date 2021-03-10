@@ -2,15 +2,9 @@ package client;
 import java.net.*;
 import java.io.*;
  
-/**
- * This is the chat client program.
- * Type 'bye' to terminte the program.
- *
- * @author www.codejava.net
- */
 public class ChatClient {
-    private String hostname;
-    private int port;
+    private final String hostname;
+    private final int port;
     private String userName;
  
     public ChatClient(String hostname, int port) {
@@ -24,7 +18,6 @@ public class ChatClient {
  
             System.out.println("Connected to the chat server");
  
-//            new ReadThread(socket, this).start();
             new WriteThread(socket, this).start();
  
         } catch (UnknownHostException ex) {
@@ -45,11 +38,7 @@ public class ChatClient {
  
  
     public static void main(String[] args) {
-//        if (args.length < 2) return;
- 
-//        String hostname = args[0];
-//        int port = Integer.parseInt(args[1]);
- 
+        
         ChatClient client = new ChatClient("127.0.0.1", 8989);
         client.execute();
     }
