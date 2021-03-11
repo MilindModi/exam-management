@@ -4,6 +4,7 @@ import client.LoginScreen;
 import client.User;
 import client.chat.ChatClient;
 import client.chat.ClientReadHandler;
+import com.github.sarxos.webcam.Webcam;
 import logger.KeyLogger;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -25,8 +26,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
+import java.awt.image.BufferedImage;
+import javax.swing.ImageIcon;
+import com.github.sarxos.webcam.Webcam;
+import javax.imageio.ImageIO;
 
 public class StudentUI extends javax.swing.JFrame {
 
@@ -71,7 +77,8 @@ public class StudentUI extends javax.swing.JFrame {
 //        this.setExtendedState(JFrame.MAXIMIZED_BOTH);  
          //till here
 
-         timerStart();
+        getCamera(this);
+        timerStart();
         FileReader reader;  
         try {
             reader = new FileReader("src/database.properties");
@@ -153,6 +160,7 @@ public class StudentUI extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        studentUIDisplayCamera = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -235,51 +243,57 @@ public class StudentUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(studentUIUploadPdfButton)
-                .addGap(69, 69, 69))
-            .addGroup(layout.createSequentialGroup()
                 .addGap(280, 280, 280)
                 .addComponent(studentUIExitButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(135, 135, 135)
-                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(studentUIDisplayExamName)
-                            .addComponent(studentUIDisplayRollNum)
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(135, 135, 135)
+                                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(studentUIDisplayExamID)
+                                        .addGap(127, 127, 127)
+                                        .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(3, 3, 3)
+                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel9)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(csec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(studentUIDisplayRollNum)
+                                    .addComponent(studentUIDisplayExamName)))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(studentUIDisplayExamID)
-                                .addGap(127, 127, 127)
-                                .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(3, 3, 3)
-                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(csec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(170, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                .addContainerGap(115, Short.MAX_VALUE)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(studentUISendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(23, 23, 23))
+                        .addGap(25, 25, 25)
+                        .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(studentUISendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(23, 23, 23))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(studentUIUploadPdfButton)
+                        .addGap(69, 69, 69))))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {csec, hour1, min, sec});
@@ -315,13 +329,18 @@ public class StudentUI extends javax.swing.JFrame {
                                 .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(studentUISendButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
-                .addComponent(studentUIUploadPdfButton)
-                .addGap(5, 5, 5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(studentUISendButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                        .addComponent(studentUIUploadPdfButton)
+                        .addGap(5, 5, 5))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(studentUIExitButton)
                 .addContainerGap())
         );
@@ -341,6 +360,7 @@ public class StudentUI extends javax.swing.JFrame {
     private void studentUIUploadPdfButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIUploadPdfButtonActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Documents ONLY", "pdf", "txt"));
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -404,6 +424,7 @@ public class StudentUI extends javax.swing.JFrame {
     private javax.swing.JLabel sec;
     private javax.swing.JList<String> studentUIChatBox;
     private javax.swing.JTextField studentUIChatTextBox;
+    private javax.swing.JLabel studentUIDisplayCamera;
     private javax.swing.JLabel studentUIDisplayExamID;
     private javax.swing.JLabel studentUIDisplayExamName;
     private javax.swing.JTextArea studentUIDisplayQuestion;
@@ -455,5 +476,49 @@ public class StudentUI extends javax.swing.JFrame {
                 }
             }
          };th.start();
+    }
+    private void getCamera(JFrame frame){
+        Thread th=new Thread()
+         {
+            public void run()
+            {
+                
+                while(true){
+                    try {
+                    Webcam webcam = Webcam.getDefault();
+                    webcam.open();
+//                    ImageIO.write(webcam.getImage(), "PNG", new File("hello-world.png"));
+//              
+                if (webcam.isOpen()) { //if web cam open 
+                    BufferedImage image = webcam.getImage();
+//                     
+                    studentUIDisplayCamera.setSize(1500, 1000);             //show captured image
+                    studentUIDisplayCamera.setIcon(new ImageIcon(image));
+//                    
+                    frame.validate();
+//                    int showConfirmDialog = JOptionPane.showConfirmDialog(null, studentUIDisplayCamera, "Image Viewer", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(""));
+//
+//                    if (showConfirmDialog == JOptionPane.YES_OPTION) {
+//                        JFileChooser chooser = new JFileChooser();
+//                        chooser.setDialogTitle("Save Image");
+//                        chooser.setFileFilter(new FileNameExtensionFilter("IMAGES ONLY", "png", "jpeg", "jpg")); //this file extentions are shown
+//                        int showSaveDialog = chooser.showSaveDialog(this);
+//                        if (showSaveDialog == 0) {                  //if pressed 'Save' button
+//                            String filePath = chooser.getCurrentDirectory().toString().replace("\\", "/");
+//                            String fileName = chooser.getSelectedFile().getName(); //get user entered file name to save
+//                            ImageIO.write(image, "PNG", new File(filePath + "/" + fileName + ".png"));
+//
+//                        }
+                    }
+                } catch (Exception ex) {
+                    Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                }
+
+                }
+            };
+//         };
+            th.start();
+            
     }
 }
