@@ -4,12 +4,18 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
+/**
+ *
+ * @author Nirav Chavda
+ */
+// Thread that handles the write to server operation of the client
 public class ClientWriteHandler extends Thread {
 
     private PrintWriter writer;
     private final Socket socket;
     private final ChatClient client;
 
+    // Constructor
     public ClientWriteHandler(Socket socket, ChatClient client) {
         this.socket = socket;
         this.client = client;
@@ -22,6 +28,7 @@ public class ClientWriteHandler extends Thread {
         }
     }
 
+    @Override
     public void run() {
         Scanner sc = new Scanner(System.in);
 

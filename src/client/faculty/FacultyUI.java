@@ -60,6 +60,7 @@ public class FacultyUI extends javax.swing.JFrame {
         new ClientReadHandler(socket, client, model, facultyUIChatBox, facultyUIComboBox).start();
     }
 
+    // Loads the database properties from properties file
     private void loadDatabaseProperties() {
         try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
@@ -77,6 +78,7 @@ public class FacultyUI extends javax.swing.JFrame {
         }
     }
 
+    // Loads the server properties from properties file
     private void loadServerProperties() {
         try (FileReader reader = new FileReader("src/server.properties")) {
             Properties p = new Properties();
@@ -98,6 +100,7 @@ public class FacultyUI extends javax.swing.JFrame {
         }
     }
 
+    // loads exam data from database
     private void loadDataFromDatabase() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
             Class.forName(JDBC_DRIVER);
@@ -212,6 +215,7 @@ public class FacultyUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // On Click event of Faculty Send Button
     private void facultyUISendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_facultyUISendButtonActionPerformed
         // TODO add your handling code here:
         String sendTo = (String) facultyUIComboBox.getSelectedItem();

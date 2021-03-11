@@ -6,6 +6,11 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JComboBox;
 
+/**
+ *
+ * @author Nirav Chavda
+ */
+// Thread that handles the read from server operation of the client
 public class ClientReadHandler extends Thread {
 
     private BufferedReader reader;
@@ -15,6 +20,7 @@ public class ClientReadHandler extends Thread {
     private final JList chatbox;
     private final JComboBox<String> studentList;
 
+    // Constructor
     public ClientReadHandler(Socket socket, ChatClient client, DefaultListModel model, JList chatbox, JComboBox<String> studentList) {
         this.socket = socket;
         this.client = client;
@@ -34,6 +40,7 @@ public class ClientReadHandler extends Thread {
         }
     }
 
+    @Override
     public void run() {
         while (true) {
             try {

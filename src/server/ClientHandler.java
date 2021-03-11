@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// Server Thread to handle every Client
 public class ClientHandler extends Thread {
 
     private final Socket socket;

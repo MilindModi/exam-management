@@ -4,14 +4,9 @@ package client.faculty;
  *
  * @author Nirav Chavda
  */
-import client.student.StudentUI;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class CreateExam extends javax.swing.JFrame {
 
@@ -20,8 +15,6 @@ public class CreateExam extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
-    private final String EXAM_ID = getRandomID(6);
-
     //FOR AWS SERVER
 //    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -31,7 +24,9 @@ public class CreateExam extends javax.swing.JFrame {
     private static String JDBC_DRIVER;
     private static String USER;
     private static String PASSWORD;
+    private final String EXAM_ID = getRandomID(6);
 
+    // Constructor
     public CreateExam() {
         initComponents();
         loadProperties();
@@ -39,6 +34,7 @@ public class CreateExam extends javax.swing.JFrame {
         createExamID.setText(EXAM_ID);
     }
 
+    // Loads database properties from properties file
     private void loadProperties() {
         try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
@@ -52,8 +48,9 @@ public class CreateExam extends javax.swing.JFrame {
         }
     }
 
+    // generates a random string of specified length
     private static String getRandomID(int n) {
-        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+        final String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
         StringBuilder sb = new StringBuilder(n);
 
         for (int i = 0; i < n; i++) {
@@ -64,6 +61,7 @@ public class CreateExam extends javax.swing.JFrame {
         return sb.toString();
     }
 
+    // Checks the emptiness of exam name, questions, facultyname, password
     private static boolean isValid(String examName, String questions, String facultyName, String password) {
         if (examName == null || examName.equals("")) {
             return false;
@@ -243,6 +241,7 @@ public class CreateExam extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_createExamNameActionPerformed
 
+    // On Click event of Create Exam Button Clicked
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         String examName = createExamName.getText();
@@ -252,6 +251,7 @@ public class CreateExam extends javax.swing.JFrame {
         String duration = createExamDuration.getSelectedItem().toString().trim();
         long seconds;
 
+        // sets seconds based of time selected from dropdown
         switch (duration) {
             case "10 Sec":
                 seconds = 10;

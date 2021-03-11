@@ -1,6 +1,6 @@
 package client.student;
 
-import client.User;
+import client.Student;
 import java.io.*;
 import java.net.Socket;
 import java.util.Properties;
@@ -10,10 +10,10 @@ public class FileUpload {
     private static String FILE_SERVER_URL;
     private static int FILE_SERVER_PORT;
 
-    final User user;
+    final Student student;
 
-    public FileUpload(User user) {
-        this.user = user;
+    public FileUpload(Student user) {
+        this.student = user;
         loadProperties();
     }
 
@@ -30,7 +30,7 @@ public class FileUpload {
     }
 
     public static void main(String[] args) {
-        var user = new User("10", "Pradip", "10_Pradip_xyz.txt", "abc");
+        var user = new Student("10", "Pradip", "10_Pradip_xyz.txt", "abc");
         new FileUpload(user).uploadFile("", "C:\\Users\\Nirav Chavda\\Downloads\\Question Bank DAD - Digital Copy.docx");
     }
 
@@ -49,9 +49,9 @@ public class FileUpload {
 
             dos.writeLong(length);
             dos.writeUTF(file.getName());
-            dos.writeUTF(user.rollNum);
-            dos.writeUTF(user.name);
-            dos.writeUTF(user.examId);
+            dos.writeUTF(student.rollNum);
+            dos.writeUTF(student.name);
+            dos.writeUTF(student.examId);
             int count;
 
             while ((count = in.read(bytes)) != -1) {

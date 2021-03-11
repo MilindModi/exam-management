@@ -3,17 +3,23 @@ package client.chat;
 import java.net.*;
 import java.io.*;
 
+/**
+ *
+ * @author Nirav Chavda
+ */
 public class ChatClient {
 
     private final String host;
     private final int port;
     private String username;
 
+    // Constructor
     public ChatClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
+    // Starts the Client
     public void start() {
         try {
             Socket socket = new Socket(host, port);

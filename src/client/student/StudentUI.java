@@ -1,7 +1,7 @@
 package client.student;
 
 import client.LoginScreen;
-import client.User;
+import client.Student;
 import client.chat.ChatClient;
 import client.chat.ClientReadHandler;
 import com.github.sarxos.webcam.Webcam;
@@ -53,7 +53,7 @@ public class StudentUI extends javax.swing.JFrame {
     private DefaultListModel model = new DefaultListModel();
     private PrintWriter writer;
     private Socket socket;
-    private final User user;
+    private final Student student;
 
     private String examName;
     private String questions;
@@ -66,9 +66,10 @@ public class StudentUI extends javax.swing.JFrame {
     private int csecond;
     private boolean isStart;
 
-    public StudentUI(final User user) {
+    // Constructor
+    public StudentUI(final Student student) {
         initComponents();
-        this.user = user;
+        this.student = student;
 
 //        Do not delete this lines
 //        GraphicsEnvironment graphics =
@@ -80,7 +81,7 @@ public class StudentUI extends javax.swing.JFrame {
         success = loadDatabaseProperties();
         success = success && loadServerProperties();
 
-        KeyLogger kg = new KeyLogger(user);
+        KeyLogger kg = new KeyLogger(student);
 
         if (success) {
             studentUIDisplayQuestion.setHighlighter(null);
@@ -104,6 +105,7 @@ public class StudentUI extends javax.swing.JFrame {
 //        device.setFullScreenWindow(this); do not delete  this line
     }
 
+    // load database properties from properties file
     private boolean loadDatabaseProperties() {
         try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
@@ -125,6 +127,7 @@ public class StudentUI extends javax.swing.JFrame {
         return true;
     }
 
+    // load server properties from properties file
     private boolean loadServerProperties() {
         try (FileReader reader = new FileReader("src/server.properties")) {
             Properties properties = new Properties();
@@ -135,7 +138,7 @@ public class StudentUI extends javax.swing.JFrame {
             socket = new Socket(SERVER_URL, SERVER_PORT);
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
-            writer.println(user.rollNum); //user id
+            writer.println(student.rollNum); //user id
         } catch (UnknownHostException e) {
             System.out.println("Unknown Host");
             JOptionPane.showMessageDialog(this, "Error 500: Server error!");
@@ -147,13 +150,14 @@ public class StudentUI extends javax.swing.JFrame {
         return true;
     }
 
+    // Sets the end time of student in database
     private void setEndTime() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + user.rollNum + " and examId='" + user.examId + "'";
+            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + student.rollNum + " and examId='" + student.examId + "'";
             int i = statement.executeUpdate(sql);
             System.out.println("Set End Time Result: " + i);
         } catch (Exception e) {
@@ -161,6 +165,7 @@ public class StudentUI extends javax.swing.JFrame {
         }
     }
 
+    // Loads exam data from database
     private void loadDataFromDatabase() {
         String insert = "INSERT INTO students (rollNo, studentName, examId) VALUES(?,?,?)";
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement fetchStatement = connection.createStatement(); PreparedStatement insertStatement = connection.prepareStatement(insert)) {
@@ -168,7 +173,7 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='" + user.examId + "'";
+            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='" + student.examId + "'";
             ResultSet rs = fetchStatement.executeQuery(sql);
             rs.next();
             examName = rs.getString("examName");
@@ -176,14 +181,14 @@ public class StudentUI extends javax.swing.JFrame {
             questions = rs.getString("questions");
             duration = (long) rs.getInt("duration");
 
-            studentUIDisplayExamID.setText("Exam ID: " + user.examId);
-            studentUIDisplayRollNum.setText("Roll Num: " + user.rollNum);
+            studentUIDisplayExamID.setText("Exam ID: " + student.examId);
+            studentUIDisplayRollNum.setText("Roll Num: " + student.rollNum);
             studentUIDisplayExamName.setText("Exam Name: " + examName);
             studentUIDisplayQuestion.setText(questions);
 
-            insertStatement.setInt(1, Integer.parseInt(user.rollNum));
-            insertStatement.setString(2, user.name);
-            insertStatement.setString(3, user.examId);
+            insertStatement.setInt(1, Integer.parseInt(student.rollNum));
+            insertStatement.setString(2, student.name);
+            insertStatement.setString(3, student.examId);
 
             int i = insertStatement.executeUpdate();
             System.out.println("Student UI Load DB Result: " + i);
@@ -423,7 +428,7 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Selected file: " + selectedFile.getAbsolutePath());
             System.out.println("Selected file name: " + selectedFile.getName());
             System.out.println("Selected file path: " + selectedFile.getPath());
-            new FileUpload(user).uploadFile(selectedFile.getPath(), selectedFile.getPath());
+            new FileUpload(student).uploadFile(selectedFile.getPath(), selectedFile.getPath());
             JOptionPane.showMessageDialog(this, "File uploaded sucessfully");
         }
     }//GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
@@ -433,7 +438,7 @@ public class StudentUI extends javax.swing.JFrame {
         int opt = JOptionPane.showConfirmDialog(this, "Are you sure?", "Exit", JOptionPane.YES_NO_OPTION);
         if (opt == JOptionPane.YES_OPTION) {
             this.setEndTime();
-            new FileUpload(user).uploadFile("", "local\\" + user.keyLogFile);
+            new FileUpload(student).uploadFile("", "local\\" + student.keyLogFile);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.dispose();
             System.exit(0);
@@ -464,7 +469,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI(new User("19", "mn", "5_Milind_5KWZJ9.txt", "5KWZJ9")).setVisible(true);
+                new StudentUI(new Student("19", "mn", "5_Milind_5KWZJ9.txt", "5KWZJ9")).setVisible(true);
             }
         });
     }
@@ -492,6 +497,7 @@ public class StudentUI extends javax.swing.JFrame {
     private javax.swing.JButton studentUIUploadPdfButton;
     // End of variables declaration//GEN-END:variables
 
+    // Starts the timer on the display of student
     private void timerStart() {
         Thread th = new Thread() {
             public void run() {

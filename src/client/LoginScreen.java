@@ -13,6 +13,10 @@ import java.sql.Statement;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 
+/**
+ *
+ * @author Nirav Chavda
+ */
 public class LoginScreen extends javax.swing.JFrame {
 
     //FOR LOCALHOST
@@ -30,11 +34,13 @@ public class LoginScreen extends javax.swing.JFrame {
     private static String USER;
     private static String PASSWORD;
 
+    // Constructor
     public LoginScreen() {
         initComponents();
-        loadProperties();
+        loadProperties(); // Load database properties from properties file
     }
 
+    // Loads the database properties from properties file into class variables
     private void loadProperties() {
         try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
@@ -50,6 +56,7 @@ public class LoginScreen extends javax.swing.JFrame {
         }
     }
 
+    // Checks the emptiness of rollno, name and examid
     private boolean isValid(String rollno, String name, String examId) {
         if (rollno == null || rollno.equals("")) {
             return false;
@@ -200,6 +207,7 @@ public class LoginScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // On Click event of Student Login Button
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         final String rollno = studentLoginRollNo.getText();
         final String name = studentLoginName.getText();
@@ -209,6 +217,7 @@ public class LoginScreen extends javax.swing.JFrame {
             return;
         }
 
+        // check exam id from database and load exam details
         try (Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement stmt = con.createStatement()) {
             Class.forName(JDBC_DRIVER);
             String sql = "SELECT * FROM exams WHERE examId='" + examId + "'";
@@ -222,7 +231,7 @@ public class LoginScreen extends javax.swing.JFrame {
             System.out.println("Error: " + e.getMessage());
         }
 
-        var user = new User(rollno, name, (rollno + "_" + name + "_" + examId + ".txt"), examId);
+        var user = new Student(rollno, name, (rollno + "_" + name + "_" + examId + ".txt"), examId);
         StudentUI studentExam = new StudentUI(user);
         studentExam.setVisible(true);
         this.dispose();
@@ -235,15 +244,17 @@ public class LoginScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_studentLoginNameActionPerformed
 
+    // On Click event of Create New Exam Button
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
         var createExam = new CreateExam();
         createExam.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    // On Click event of Faculty Start Exam Button
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        // Check if examid and password are correct,
+        // if correct, load exam, else show apt message
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
