@@ -13,10 +13,7 @@ import static java.lang.Thread.sleep;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -61,6 +58,7 @@ public class StudentUI extends javax.swing.JFrame {
     private String examName;
     private String questions;
     private String facultyUsername;
+    private long duration;
 
     private int hour;
     private int minute;
@@ -70,7 +68,7 @@ public class StudentUI extends javax.swing.JFrame {
 
     public StudentUI(final User user) {
 
-        //Do not delete this lines
+        //Do not delete this lines  , I was going to delete it LOL ;-)
 //        GraphicsEnvironment graphics =
 //        GraphicsEnvironment.getLocalGraphicsEnvironment();
 //        GraphicsDevice device = graphics.getDefaultScreenDevice();
@@ -108,25 +106,27 @@ public class StudentUI extends javax.swing.JFrame {
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
             writer.println(user.rollNum); //user id
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown Host");
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            this.dispose();
         } catch (IOException e) {
             success = false;
         }
 
         initComponents();
         if (success) {
-            timerStart();
-            getCamera(this);
-
             studentUIDisplayQuestion.setHighlighter(null);
 
             ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
             new ClientReadHandler(socket, client, model, studentUIChatBox, null).start();
             loadDataFromDatabase();
+            timerStart();
+            getCamera(this);
         }
         if (!success) {
             JOptionPane.showMessageDialog(this, "Error 500: Server error!");
             (new LoginScreen()).setVisible(true);
-            this.dispose();
             this.dispose();
             this.setVisible(false);
             System.out.println("Reached here");
@@ -136,24 +136,46 @@ public class StudentUI extends javax.swing.JFrame {
 //        device.setFullScreenWindow(this); do not delete  this line
     }
 
-    private void loadDataFromDatabase() {
+    private void setEndTime() {
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "SELECT examName, questions, facultyUsername FROM exams WHERE BINARY examId='" + user.examId + "'";
-            ResultSet rs = statement.executeQuery(sql);
+            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + user.rollNum + " and examId='" + user.examId + "'";
+            int i = statement.executeUpdate(sql);
+            System.out.println("End Time Result: " + i);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void loadDataFromDatabase() {
+        String insert = "INSERT INTO students (rollNo, studentName, examId) VALUES(?,?,?)";
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement fetchStatement = connection.createStatement(); PreparedStatement insertStatement = connection.prepareStatement(insert)) {
+            Class.forName(JDBC_DRIVER);
+            System.out.println("Creating connection...");
+            System.out.println("Creating statement...");
+
+            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='" + user.examId + "'";
+            ResultSet rs = fetchStatement.executeQuery(sql);
             rs.next();
             examName = rs.getString("examName");
             facultyUsername = rs.getString("facultyUsername");
             questions = rs.getString("questions");
+            duration = (long) rs.getInt("duration");
 
             studentUIDisplayExamID.setText("Exam ID: " + user.examId);
             studentUIDisplayRollNum.setText("Roll Num: " + user.rollNum);
             studentUIDisplayExamName.setText("Exam Name: " + examName);
             studentUIDisplayQuestion.setText(questions);
 
+            insertStatement.setInt(1, Integer.parseInt(user.rollNum));
+            insertStatement.setString(2, user.name);
+            insertStatement.setString(3, user.examId);
+
+            int i = insertStatement.executeUpdate();
+            System.out.println("Result: " + i);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -178,11 +200,11 @@ public class StudentUI extends javax.swing.JFrame {
         hour1 = new javax.swing.JLabel();
         min = new javax.swing.JLabel();
         sec = new javax.swing.JLabel();
-        csec = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         studentUIDisplayCamera = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -245,12 +267,6 @@ public class StudentUI extends javax.swing.JFrame {
         sec.setMaximumSize(new java.awt.Dimension(20, 20));
         sec.setMinimumSize(new java.awt.Dimension(20, 20));
 
-        csec.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        csec.setForeground(new java.awt.Color(0, 0, 20));
-        csec.setText("00");
-        csec.setMaximumSize(new java.awt.Dimension(20, 20));
-        csec.setMinimumSize(new java.awt.Dimension(20, 20));
-
         jLabel9.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel9.setText("Sec");
 
@@ -259,6 +275,9 @@ public class StudentUI extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel7.setText("Hour");
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setText("Remaining Time:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -276,11 +295,18 @@ public class StudentUI extends javax.swing.JFrame {
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGap(135, 135, 135)
-                                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(135, 135, 135)
+                                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(studentUIDisplayRollNum)
+                                            .addComponent(studentUIDisplayExamName))
+                                        .addGap(288, 288, 288))
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(studentUIDisplayExamID)
-                                        .addGap(127, 127, 127)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel1)
+                                        .addGap(18, 18, 18)
                                         .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(3, 3, 3)
                                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -291,15 +317,12 @@ public class StudentUI extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel9)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(csec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(studentUIDisplayRollNum)
-                                    .addComponent(studentUIDisplayExamName)))
+                                        .addComponent(jLabel9))))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap(115, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE))
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(43, 43, 43)))
+                        .addGap(18, 18, 18))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(25, 25, 25)
                         .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -318,7 +341,7 @@ public class StudentUI extends javax.swing.JFrame {
                         .addGap(69, 69, 69))))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {csec, hour1, min, sec});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {hour1, min, sec});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -328,26 +351,26 @@ public class StudentUI extends javax.swing.JFrame {
                         .addGap(34, 34, 34)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(9, 9, 9)
-                                .addComponent(studentUIDisplayExamID)
-                                .addGap(14, 14, 14)
+                                .addGap(5, 5, 5)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(studentUIDisplayExamID)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel9)
+                                        .addComponent(jLabel1)))
+                                .addGap(10, 10, 10)
                                 .addComponent(studentUIDisplayExamName)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(studentUIDisplayRollNum)
                                 .addGap(16, 16, 16))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(csec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel9))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -367,7 +390,7 @@ public class StudentUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {csec, hour1, min, sec});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {hour1, min, sec});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -400,6 +423,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         int opt = JOptionPane.showConfirmDialog(this, "Are you sure?", "Exit", JOptionPane.YES_NO_OPTION);
         if (opt == JOptionPane.YES_OPTION) {
+            this.setEndTime();
             new FileUpload(user).uploadFile("", "local\\" + user.keyLogFile);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.dispose();
@@ -427,15 +451,15 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI(new User("19", "mn", "5_Milind_JYk9qD.txt", "JYk9qD")).setVisible(true);
+                new StudentUI(new User("19", "mn", "5_Milind_5KWZJ9.txt", "5KWZJ9")).setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Canvas canvas1;
-    private javax.swing.JLabel csec;
     private javax.swing.JLabel hour1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -456,40 +480,69 @@ public class StudentUI extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void timerStart() {
-        isStart = true;
-
         Thread th = new Thread() {
             public void run() {
-
-                while (isStart == true) {
+                System.out.println(duration);
+                long seconds = duration;//databaase connection for duration fetching
+                while (seconds > 0) {
+                    int Hours = (int) seconds / 3600;
+                    int remainder = (int) seconds - Hours * 3600;
+                    int Minutes = remainder / 60;
+                    remainder = remainder - Minutes * 60;
+                    int Secs = remainder;
                     try {
-                        sleep(1000);
-
-                        second++;
-//                    if(csecond==100)
-//                    {
-//                        second++;
-//                        csecond=0;
-//                    }
-                        if (second == 60) {
-                            minute++;
-                            second = 0;
-                        }
-                        if (minute == 60) {
-                            hour++;
-                            minute = 0;
-                        }
-                        hour1.setText("0" + hour);
-                        min.setText("0" + minute);
-                        sec.setText("0" + second);
-                        csec.setText("" + csecond);
-                    } catch (Exception ex) {
-                        System.out.print("something is wrong");
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    --seconds;
+                    System.out.println("Hour : " + Hours + " Minutes : " + Minutes + " Seconds : " + Secs);
+                    hour1.setText("0" + Hours);
+                    min.setText("0" + Minutes);
+                    sec.setText("0" + Secs);
+//                    csec.setText(""+csecond);
                 }
+                System.out.println("Exam Khatam");
+                JOptionPane.showMessageDialog(null, "Exam Over!");
+                System.exit(0);
             }
         };
         th.start();
+// dont elete this as of now
+//        isStart = true;
+//
+//        Thread th = new Thread() {
+//            public void run() {
+//
+//                while (isStart == true) {
+//                    try {
+//                        sleep(1000);
+//
+//                        second++;
+////                    if(csecond==100)
+////                    {
+////                        second++;
+////                        csecond=0;
+////                    }
+//                        if (second == 60) {
+//                            minute++;
+//                            second = 0;
+//                        }
+//                        if (minute == 60) {
+//                            hour++;
+//                            minute = 0;
+//                        }
+//                        hour1.setText("0" + hour);
+//                        min.setText("0" + minute);
+//                        sec.setText("0" + second);
+//                        csec.setText("" + csecond);
+//                    } catch (Exception ex) {
+//                        System.out.print("something is wrong");
+//                    }
+//                }
+//            }
+//        };
+//        th.start();
     }
 
     private void getCamera(JFrame frame) {
