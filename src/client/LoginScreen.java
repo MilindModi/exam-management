@@ -3,20 +3,54 @@ package client;
 import client.faculty.FacultyUI;
 import client.faculty.CreateExam;
 import client.student.StudentUI;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LoginScreen extends javax.swing.JFrame {
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/exam_management";
-    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
+    //FOR LOCALHOST
+//    private static final String DB_URL = "jdbc:mysql://localhost:3306/exam_management";
+//    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+//    private static final String USER = "root";
+//    private static final String PASSWORD = "";
+    
+    //FOR AWS
+//    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
+//    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+//    private static final String USER = "admin";
+//    private static final String PASSWORD = "7801898047";
 
+   
+    private static String DB_URL ;
+    private static String JDBC_DRIVER ;
+    private static String USER ;
+    private static  String PASSWORD ;
     public LoginScreen() {
         initComponents();
+        FileReader reader;  
+        try {
+            reader = new FileReader("src/database.properties");
+            Properties p = new Properties();  
+            p.load(reader);
+            DB_URL = p.getProperty("DB_URL");
+            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
+            USER = p.getProperty("USER");
+            PASSWORD = p.getProperty("PASSWORD");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      
+     
     }
 
     @SuppressWarnings("unchecked")
