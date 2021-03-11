@@ -22,7 +22,6 @@ public class CreateExam extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
-    
     private final String EXAM_ID = getRandomID(6);
 
     //FOR AWS SERVER
@@ -30,19 +29,17 @@ public class CreateExam extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
 //    private static final String PASSWORD = "7801898047";
-    
-    private static String DB_URL ;
-    private static String JDBC_DRIVER ;
-    private static String USER ;
-    private static  String PASSWORD ;
-    
-    
+    private static String DB_URL;
+    private static String JDBC_DRIVER;
+    private static String USER;
+    private static String PASSWORD;
+
     public CreateExam() {
         initComponents();
-        FileReader reader;  
+        FileReader reader;
         try {
             reader = new FileReader("src/database.properties");
-            Properties p = new Properties();  
+            Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
@@ -110,6 +107,8 @@ public class CreateExam extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         createExamPassword = new javax.swing.JPasswordField();
+        jLabel7 = new javax.swing.JLabel();
+        createExamDuration = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -157,6 +156,10 @@ public class CreateExam extends javax.swing.JFrame {
 
         jLabel6.setText("Password");
 
+        jLabel7.setText("Duration");
+
+        createExamDuration.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10 Sec", "30 Mins", "1 Hr", "1.5 Hr", "2 Hr" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -181,13 +184,19 @@ public class CreateExam extends javax.swing.JFrame {
                                 .addComponent(createExamID, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel3))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addGap(155, 155, 155)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                            .addComponent(createExamPassword))))
+                            .addComponent(createExamPassword)
+                            .addComponent(createExamDuration, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(76, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -207,11 +216,15 @@ public class CreateExam extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(createExamFacultyName, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(createExamPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(createExamDuration, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -237,6 +250,28 @@ public class CreateExam extends javax.swing.JFrame {
         String questions = createExamQuestions.getText();
         String facultyName = createExamFacultyName.getText();
         String password = createExamPassword.getText();
+        String duration = createExamDuration.getSelectedItem().toString().trim();
+        long seconds;
+
+        switch (duration) {
+            case "10 Sec":
+                seconds = 10;
+                break;
+            case "30 Mins":
+                seconds = 1800;
+                break;
+            case "1 Hr":
+                seconds = 3600;
+                break;
+            case "1.5 Hr":
+                seconds = 5400;
+                break;
+            case "2 Hr":
+                seconds = 7200;
+                break;
+            default:
+                seconds = 30;
+        }
 
         if (!isValid(examName, questions, facultyName, password)) {
             System.out.println("Invalid Details");
@@ -246,13 +281,14 @@ public class CreateExam extends javax.swing.JFrame {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
-            String sql = "INSERT INTO exams VALUES(?,?,?,?,?)";
+            String sql = "INSERT INTO exams VALUES(?,?,?,?,?,?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, EXAM_ID);
             statement.setString(2, examName);
             statement.setString(3, questions);
             statement.setString(4, facultyName);
             statement.setString(5, password);
+            statement.setLong(6, seconds);
             int i = statement.executeUpdate();
             System.out.println("Result: " + i);
             var facultyUI = new FacultyUI(EXAM_ID);
@@ -303,6 +339,7 @@ public class CreateExam extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> createExamDuration;
     private javax.swing.JTextField createExamFacultyName;
     private javax.swing.JTextField createExamID;
     private javax.swing.JTextField createExamName;
@@ -315,6 +352,7 @@ public class CreateExam extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
