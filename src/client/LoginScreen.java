@@ -1,11 +1,16 @@
 package client;
 
+import client.chat.ChatClient;
 import client.faculty.FacultyUI;
 import client.faculty.CreateExam;
 import client.student.StudentUI;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -32,22 +37,13 @@ public class LoginScreen extends javax.swing.JFrame {
     private static String USER;
     private static String PASSWORD;
 
+    private Socket socket; 
+    private static String SERVER_URL;
+    private static int SERVER_PORT;
+    
     public LoginScreen() {
-        initComponents();
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
-            Properties p = new Properties();
-            p.load(reader);
-            DB_URL = p.getProperty("DB_URL");
-            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
-            USER = p.getProperty("USER");
-            PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        initComponents(); 
+            
     }
 
     @SuppressWarnings("unchecked")
@@ -188,6 +184,11 @@ public class LoginScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        var check = networkConnections();
+        if(!check){
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            return;           
+        }
         final String rollno = studentLoginRollNo.getText();
         final String name = studentLoginName.getText();
         final String examId = studentLoginExamId.getText();
@@ -213,6 +214,8 @@ public class LoginScreen extends javax.swing.JFrame {
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            return;
         }
 
         var user = new User(rollno, name, (rollno + "_" + name + "_" + examId + ".txt"), examId);
@@ -230,6 +233,11 @@ public class LoginScreen extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+        var check = networkConnections();
+        if(!check){
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            return;           
+        }
         var createExam = new CreateExam();
         createExam.setVisible(true);
         this.dispose();
@@ -237,6 +245,11 @@ public class LoginScreen extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+            var check = networkConnections();
+            if(!check){
+                JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+                return;           
+            }
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
@@ -309,4 +322,44 @@ public class LoginScreen extends javax.swing.JFrame {
     private javax.swing.JTextField studentLoginName;
     private javax.swing.JTextField studentLoginRollNo;
     // End of variables declaration//GEN-END:variables
+
+    private boolean networkConnections() {
+        boolean success = true;
+       FileReader reader;
+        
+        try {
+
+            reader = new FileReader("src/database.properties");
+            Properties p = new Properties();
+            p.load(reader);
+            DB_URL = p.getProperty("DB_URL");
+            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
+            USER = p.getProperty("USER");
+            PASSWORD = p.getProperty("PASSWORD");
+            
+            Properties properties = new Properties();
+            reader = new FileReader("src/server.properties");
+            properties.load(reader);
+
+            SERVER_URL = properties.getProperty("SERVER_URL");
+            SERVER_PORT = Integer.parseInt(properties.getProperty("SERVER_PORT"));
+
+            socket = new Socket(SERVER_URL, SERVER_PORT);
+
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown Host");
+//            JOptionPane.showMessageDialog(this, "Error 500: Server error!"); 
+            success = false;
+
+        } catch (IOException e) {
+//            JOptionPane.showMessageDialog(this, "Error 500: Server error!"); 
+            success = false;
+
+        }catch(Exception e){
+//            JOptionPane.showMessageDialog(this, "Error 500: Server error!"); 
+            success = false;
+
+        }
+        return success;
+    }
 }

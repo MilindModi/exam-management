@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import com.github.sarxos.webcam.Webcam;
 import javax.imageio.ImageIO;
+import logger.Screenshot;
 
 public class StudentUI extends javax.swing.JFrame {
 
@@ -69,10 +70,10 @@ public class StudentUI extends javax.swing.JFrame {
     public StudentUI(final User user) {
 
         //Do not delete this lines  , I was going to delete it LOL ;-)
-//        GraphicsEnvironment graphics =
-//        GraphicsEnvironment.getLocalGraphicsEnvironment();
-//        GraphicsDevice device = graphics.getDefaultScreenDevice();
-//        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        GraphicsEnvironment graphics =
+        GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice device = graphics.getDefaultScreenDevice();
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         //till here
         boolean success = true;
         FileReader reader;
@@ -121,19 +122,13 @@ public class StudentUI extends javax.swing.JFrame {
             ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
             new ClientReadHandler(socket, client, model, studentUIChatBox, null).start();
             loadDataFromDatabase();
-            timerStart();
+            timerStart(this);
             getCamera(this);
+            Runnable r = new Screenshot(this.user);
+            new Thread(r).start();
         }
-        if (!success) {
-            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
-            (new LoginScreen()).setVisible(true);
-            this.dispose();
-            this.setVisible(false);
-            System.out.println("Reached here");
-            return;
-        }
-        System.out.println("Reached here again");
-//        device.setFullScreenWindow(this); do not delete  this line
+ 
+        device.setFullScreenWindow(this); //do not delete  this line
     }
 
     private void setEndTime() {
@@ -206,8 +201,9 @@ public class StudentUI extends javax.swing.JFrame {
         studentUIDisplayCamera = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setUndecorated(true);
 
         jScrollPane1.setViewportView(studentUIChatBox);
 
@@ -351,11 +347,10 @@ public class StudentUI extends javax.swing.JFrame {
                         .addGap(34, 34, 34)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(5, 5, 5)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(studentUIDisplayExamID)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -363,15 +358,14 @@ public class StudentUI extends javax.swing.JFrame {
                                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel9)
-                                        .addComponent(jLabel1)))
+                                        .addComponent(jLabel1))
+                                    .addComponent(studentUIDisplayExamID))
                                 .addGap(10, 10, 10)
                                 .addComponent(studentUIDisplayExamName)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(studentUIDisplayRollNum)
                                 .addGap(16, 16, 16))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -451,7 +445,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI(new User("19", "mn", "5_Milind_5KWZJ9.txt", "5KWZJ9")).setVisible(true);
+                new StudentUI(new User("19", "mn", "5_Milind_qekvD7.txt", "qekvD7")).setVisible(true);
             }
         });
     }
@@ -479,8 +473,8 @@ public class StudentUI extends javax.swing.JFrame {
     private javax.swing.JButton studentUIUploadPdfButton;
     // End of variables declaration//GEN-END:variables
 
-    private void timerStart() {
-        Thread th = new Thread() {
+    private void timerStart(JFrame frame) {
+        Thread th = new Thread() { 
             public void run() {
                 System.out.println(duration);
                 long seconds = duration;//databaase connection for duration fetching
@@ -501,6 +495,9 @@ public class StudentUI extends javax.swing.JFrame {
                     min.setText("0" + Minutes);
                     sec.setText("0" + Secs);
 //                    csec.setText(""+csecond);
+                }
+                if(seconds < 0){
+                       frame.dispose();
                 }
                 System.out.println("Exam Khatam");
                 JOptionPane.showMessageDialog(null, "Exam Over!");
