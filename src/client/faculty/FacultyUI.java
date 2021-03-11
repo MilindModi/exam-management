@@ -14,18 +14,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 
-/**
- *
- * @author Nirav Chavda
- */
 public class FacultyUI extends javax.swing.JFrame {
 
-    //FOR LOCALHOST
+//FOR LOCALHOST
 //    private static final String DB_URL = "jdbc:mysql://localhost:3306/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
-    //FOR AWS
+//FOR AWS
 //    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
@@ -49,9 +45,35 @@ public class FacultyUI extends javax.swing.JFrame {
         EXAM_ID = examId;
         initComponents();
         facultyUIComboBox.addItem("Everyone");
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
+
+        loadDatabaseProperties();
+        loadDataFromDatabase();
+
+        loadServerProperties();
+
+        ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
+        new ClientReadHandler(socket, client, model, facultyUIChatBox, facultyUIComboBox).start();
+    }
+
+    private void loadServerProperties() {
+        try (FileReader reader = new FileReader("src/server.properties")) {
+            Properties p = new Properties();
+            p.load(reader);
+
+            SERVER_URL = p.getProperty("SERVER_URL");
+            SERVER_PORT = Integer.parseInt(p.getProperty("SERVER_PORT"));
+
+            socket = new Socket(SERVER_URL, SERVER_PORT);
+            OutputStream output = socket.getOutputStream();
+            writer = new PrintWriter(output, true);
+            writer.println(facultyUsername);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void loadDatabaseProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
@@ -63,26 +85,6 @@ public class FacultyUI extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(FacultyUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        loadDataFromDatabase();
-
-        try {
-            reader = new FileReader("src/server.properties");
-            Properties p = new Properties();
-            p.load(reader);
-
-            SERVER_URL = p.getProperty("SERVER_URL");
-            SERVER_PORT = Integer.parseInt(p.getProperty("SERVER_PORT"));
-
-            socket = new Socket(SERVER_URL, SERVER_PORT);
-            OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
-            writer.println(facultyUsername);
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
-        new ClientReadHandler(socket, client, model, facultyUIChatBox, facultyUIComboBox).start();
     }
 
     private void loadDataFromDatabase() {
@@ -200,7 +202,6 @@ public class FacultyUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void facultyUISendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_facultyUISendButtonActionPerformed
-        // TODO add your handling code here:
         String sendTo = (String) facultyUIComboBox.getSelectedItem();
         sendTo = sendTo.startsWith("Everyone") ? "" : "@" + sendTo;
         writer.println(sendTo + " " + facultyUIChatTextBox.getText());

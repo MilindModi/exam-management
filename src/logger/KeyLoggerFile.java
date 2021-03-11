@@ -1,6 +1,6 @@
 package logger;
 
-import client.User;
+import client.Student;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import java.io.IOException;
 public class KeyLoggerFile {
 
     FileWriter myWriter;
-    final User user;
+    final Student user;
 
-    public KeyLoggerFile(User user) {
+    public KeyLoggerFile(Student user) {
         this.user = user;
         File theDir = new File("local/");
         if (!theDir.exists()) {

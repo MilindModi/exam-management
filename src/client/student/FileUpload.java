@@ -1,28 +1,20 @@
 package client.student;
 
-import client.User;
+import client.Student;
 import java.io.*;
 import java.net.Socket;
 import java.util.Properties;
 
-
-/**
- *
- * @author Milind Modi
- * @author Pradip Karmakar
- * @author Ajinz Rathod
- */
 public class FileUpload {
 
     private static String FILE_SERVER_URL;
     private static int FILE_SERVER_PORT;
 
-    final User user;
+    final Student user;
 
-    public FileUpload(User user) {
+    public FileUpload(Student user) {
         this.user = user;
 
-        //setting up the proprties
         try {
             Properties properties = new Properties();
             FileReader reader = new FileReader("src/server.properties");
@@ -36,7 +28,7 @@ public class FileUpload {
     }
 
     public static void main(String[] args) {
-        var user = new User("10", "Pradip", "10_Pradip_xyz.txt", "abc");
+        var user = new Student("10", "Pradip", "10_Pradip_xyz.txt", "abc");
         new FileUpload(user).uploadFile("", "C:\\Users\\Nirav Chavda\\Downloads\\Question Bank DAD - Digital Copy.docx");
     }
 

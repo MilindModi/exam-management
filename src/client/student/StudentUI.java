@@ -1,6 +1,6 @@
 package client.student;
 
-import client.User;
+import client.Student;
 import client.chat.ChatClient;
 import client.chat.ClientReadHandler;
 import logger.KeyLogger;
@@ -20,13 +20,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import com.github.sarxos.webcam.Webcam;
+import java.awt.HeadlessException;
 import logger.Screenshot;
 
-
-/**
- *
- * @author Milind Modi
- */
 public class StudentUI extends javax.swing.JFrame {
 
     //FOR LOCALHOST
@@ -50,7 +46,7 @@ public class StudentUI extends javax.swing.JFrame {
     private DefaultListModel model = new DefaultListModel();
     private PrintWriter writer;
     private Socket socket;
-    private final User user;
+    private final Student student;
 
     private String examName;
     private String questions;
@@ -63,7 +59,9 @@ public class StudentUI extends javax.swing.JFrame {
     private int csecond;
     private boolean isStart;
 
-    public StudentUI(final User user) {
+    public StudentUI(final Student student) {
+        initComponents();
+        boolean success = true;
 
         //Do not delete this lines  , I was going to delete it LOL ;-)
 //        GraphicsEnvironment graphics =
@@ -71,47 +69,11 @@ public class StudentUI extends javax.swing.JFrame {
 //        GraphicsDevice device = graphics.getDefaultScreenDevice();
 //        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         //till here
-        boolean success = true;
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
-            Properties p = new Properties();
-            p.load(reader);
-            DB_URL = p.getProperty("DB_URL");
-            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
-            USER = p.getProperty("USER");
-            PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException e) {
-            success = false;
-            System.out.println("Error: " + e.getMessage());
-        } catch (IOException e) {
-            success = false;
-            System.out.println("Error: " + e.getMessage());
-        }
-        this.user = user;
-        KeyLogger kg = new KeyLogger(user);
-        try {
+        success = loadDatabaseProperties();
+        this.student = student;
+        KeyLogger kg = new KeyLogger(student);
+        success = success && loadServerProperties();
 
-            Properties properties = new Properties();
-            reader = new FileReader("src/server.properties");
-            properties.load(reader);
-
-            SERVER_URL = properties.getProperty("SERVER_URL");
-            SERVER_PORT = Integer.parseInt(properties.getProperty("SERVER_PORT"));
-
-            socket = new Socket(SERVER_URL, SERVER_PORT);
-            OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
-            writer.println(user.rollNum); //user id
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown Host");
-            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
-            this.dispose();
-        } catch (IOException e) {
-            success = false;
-        }
-
-        initComponents();
         if (success) {
             studentUIDisplayQuestion.setHighlighter(null);
 
@@ -119,12 +81,51 @@ public class StudentUI extends javax.swing.JFrame {
             new ClientReadHandler(socket, client, model, studentUIChatBox, null).start();
             loadDataFromDatabase();
             timerStart(this);
-//            getCamera(this);
-            Runnable r = new Screenshot(this.user);
+            getCamera(this);
+            Runnable r = new Screenshot(this.student);
             new Thread(r).start();
         }
- 
+
 //        device.setFullScreenWindow(this); //do not delete  this line
+    }
+
+    private boolean loadServerProperties() throws NumberFormatException, HeadlessException {
+        try (final FileReader reader = new FileReader("src/server.properties")) {
+            Properties properties = new Properties();
+            properties.load(reader);
+            SERVER_URL = properties.getProperty("SERVER_URL");
+            SERVER_PORT = Integer.parseInt(properties.getProperty("SERVER_PORT"));
+            socket = new Socket(SERVER_URL, SERVER_PORT);
+            OutputStream output = socket.getOutputStream();
+            writer = new PrintWriter(output, true);
+            writer.println(student.rollNum); //user id
+            //user id
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown Host");
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            this.dispose();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean loadDatabaseProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
+            Properties p = new Properties();
+            p.load(reader);
+            DB_URL = p.getProperty("DB_URL");
+            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
+            USER = p.getProperty("USER");
+            PASSWORD = p.getProperty("PASSWORD");
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
+            return false;
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     private void setEndTime() {
@@ -133,7 +134,7 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + user.rollNum + " and examId='" + user.examId + "'";
+            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + student.rollNum + " and examId='" + student.examId + "'";
             int i = statement.executeUpdate(sql);
             System.out.println("End Time Result: " + i);
         } catch (Exception e) {
@@ -148,7 +149,7 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='" + user.examId + "'";
+            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='" + student.examId + "'";
             ResultSet rs = fetchStatement.executeQuery(sql);
             rs.next();
             examName = rs.getString("examName");
@@ -156,14 +157,14 @@ public class StudentUI extends javax.swing.JFrame {
             questions = rs.getString("questions");
             duration = (long) rs.getInt("duration");
 
-            studentUIDisplayExamID.setText("Exam ID: " + user.examId);
-            studentUIDisplayRollNum.setText("Roll Num: " + user.rollNum);
+            studentUIDisplayExamID.setText("Exam ID: " + student.examId);
+            studentUIDisplayRollNum.setText("Roll Num: " + student.rollNum);
             studentUIDisplayExamName.setText("Exam Name: " + examName);
             studentUIDisplayQuestion.setText(questions);
 
-            insertStatement.setInt(1, Integer.parseInt(user.rollNum));
-            insertStatement.setString(2, user.name);
-            insertStatement.setString(3, user.examId);
+            insertStatement.setInt(1, Integer.parseInt(student.rollNum));
+            insertStatement.setString(2, student.name);
+            insertStatement.setString(3, student.examId);
 
             int i = insertStatement.executeUpdate();
             System.out.println("Result: " + i);
@@ -403,7 +404,7 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Selected file: " + selectedFile.getAbsolutePath());
             System.out.println("Selected file name: " + selectedFile.getName());
             System.out.println("Selected file path: " + selectedFile.getPath());
-            new FileUpload(user).uploadFile(selectedFile.getPath(), selectedFile.getPath());
+            new FileUpload(student).uploadFile(selectedFile.getPath(), selectedFile.getPath());
             JOptionPane.showMessageDialog(this, "File uploaded sucessfully");
         }
     }//GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
@@ -413,7 +414,7 @@ public class StudentUI extends javax.swing.JFrame {
         int opt = JOptionPane.showConfirmDialog(this, "Are you sure?", "Exit", JOptionPane.YES_NO_OPTION);
         if (opt == JOptionPane.YES_OPTION) {
             this.setEndTime();
-            new FileUpload(user).uploadFile("", "local\\" + user.keyLogFile);
+            new FileUpload(student).uploadFile("", "local\\" + student.keyLogFile);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.dispose();
             System.exit(0);
@@ -440,7 +441,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI(new User("19", "mn", "5_Milind_qekvD7.txt", "qekvD7")).setVisible(true);
+                new StudentUI(new Student("19", "mn", "5_Milind_qekvD7.txt", "qekvD7")).setVisible(true);
             }
         });
     }
@@ -469,10 +470,10 @@ public class StudentUI extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void timerStart(JFrame frame) {
-        Thread th = new Thread() { 
+        Thread th = new Thread() {
             public void run() {
                 System.out.println(duration);
-                long seconds = duration;//databaase connection for duration fetching
+                long seconds = duration;    //databaase connection for duration fetching
                 while (seconds > 0) {
                     int Hours = (int) seconds / 3600;
                     int remainder = (int) seconds - Hours * 3600;
@@ -489,10 +490,9 @@ public class StudentUI extends javax.swing.JFrame {
                     hour1.setText("0" + Hours);
                     min.setText("0" + Minutes);
                     sec.setText("0" + Secs);
-//                    csec.setText(""+csecond);
                 }
-                if(seconds < 0){
-                       frame.dispose();
+                if (seconds < 0) {
+                    frame.dispose();
                 }
                 System.out.println("Exam Khatam");
                 JOptionPane.showMessageDialog(null, "Exam Over!");
@@ -500,41 +500,8 @@ public class StudentUI extends javax.swing.JFrame {
             }
         };
         th.start();
-// dont delete this as of now
-//        isStart = true;
-//
-//        Thread th = new Thread() {
-//            public void run() {
-//
-//                while (isStart == true) {
-//                    try {
-//                        sleep(1000);
-//
-//                        second++;
-////                    if(csecond==100)
-////                    {
-////                        second++;
-////                        csecond=0;
-////                    }
-//                        if (second == 60) {
-//                            minute++;
-//                            second = 0;
-//                        }
-//                        if (minute == 60) {
-//                            hour++;
-//                            minute = 0;
-//                        }
-//                        hour1.setText("0" + hour);
-//                        min.setText("0" + minute);
-//                        sec.setText("0" + second);
-//                        csec.setText("" + csecond);
-//                    } catch (Exception ex) {
-//                        System.out.print("something is wrong");
-//                    }
-//                }
-//            }
-//        };
-//        th.start();
+
+
     }
 
     private void getCamera(JFrame frame) {
@@ -545,28 +512,11 @@ public class StudentUI extends javax.swing.JFrame {
                     try {
                         Webcam webcam = Webcam.getDefault();
                         webcam.open();
-//                    ImageIO.write(webcam.getImage(), "PNG", new File("hello-world.png"));
-//
-                        if (webcam.isOpen()) { //if web cam open
+                        if (webcam.isOpen()) {
                             BufferedImage image = webcam.getImage();
-//
-                            studentUIDisplayCamera.setSize(1500, 1000);             //show captured image
+                            studentUIDisplayCamera.setSize(1500, 1000);
                             studentUIDisplayCamera.setIcon(new ImageIcon(image));
-//
                             frame.validate();
-//                    int showConfirmDialog = JOptionPane.showConfirmDialog(null, studentUIDisplayCamera, "Image Viewer", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(""));
-//
-//                    if (showConfirmDialog == JOptionPane.YES_OPTION) {
-//                        JFileChooser chooser = new JFileChooser();
-//                        chooser.setDialogTitle("Save Image");
-//                        chooser.setFileFilter(new FileNameExtensionFilter("IMAGES ONLY", "png", "jpeg", "jpg")); //this file extentions are shown
-//                        int showSaveDialog = chooser.showSaveDialog(this);
-//                        if (showSaveDialog == 0) {                  //if pressed 'Save' button
-//                            String filePath = chooser.getCurrentDirectory().toString().replace("\\", "/");
-//                            String fileName = chooser.getSelectedFile().getName(); //get user entered file name to save
-//                            ImageIO.write(image, "PNG", new File(filePath + "/" + fileName + ".png"));
-//
-//                        }
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);

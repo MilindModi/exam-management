@@ -1,9 +1,5 @@
 package client.faculty;
 
-/**
- *
- * @author Nirav Chavda
- */
 import client.student.StudentUI;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,14 +11,14 @@ import java.util.logging.Logger;
 
 public class CreateExam extends javax.swing.JFrame {
 
-    //For Localhost
+//For Localhost
 //    private static final String DB_URL = "jdbc:mysql://localhost:3306/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
     private final String EXAM_ID = getRandomID(6);
 
-    //FOR AWS SERVER
+//FOR AWS SERVER
 //    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
@@ -34,9 +30,12 @@ public class CreateExam extends javax.swing.JFrame {
 
     public CreateExam() {
         initComponents();
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
+        loadDatabaseProperties();
+        createExamID.setText(EXAM_ID);
+    }
+
+    private void loadDatabaseProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
@@ -48,7 +47,6 @@ public class CreateExam extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        createExamID.setText(EXAM_ID);
     }
 
     private static String getRandomID(int n) {
@@ -235,15 +233,12 @@ public class CreateExam extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void createExamIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createExamIDActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_createExamIDActionPerformed
 
     private void createExamNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createExamNameActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_createExamNameActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
         String examName = createExamName.getText();
         String questions = createExamQuestions.getText();
         String facultyName = createExamFacultyName.getText();
@@ -275,6 +270,7 @@ public class CreateExam extends javax.swing.JFrame {
             System.out.println("Invalid Details");
             return;
         }
+
         try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD)) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
@@ -298,7 +294,6 @@ public class CreateExam extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void createExamFacultyNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createExamFacultyNameActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_createExamFacultyNameActionPerformed
 
     /**

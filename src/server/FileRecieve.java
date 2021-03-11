@@ -5,10 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
-/**
- *
- * @author Milind Modi
- */
 public class FileRecieve {
 
     public static void main(String[] args) throws Exception {
@@ -16,8 +12,8 @@ public class FileRecieve {
         int FILE_SERVER_PORT = 7000;
 
         try {
-            
-            //reading the proprities 
+
+            //reading the proprities
             var reader = new FileReader("src/server.properties");
             Properties p = new Properties();
             p.load(reader);
@@ -50,7 +46,7 @@ public class FileRecieve {
             long size = 0;
             try {
                 //reading the data sent by client
-                size = dis.readLong(); 
+                size = dis.readLong();
                 final String fName = dis.readUTF();
                 final String rNum = dis.readUTF();
                 final String uName = dis.readUTF();
@@ -60,8 +56,17 @@ public class FileRecieve {
                 if (!theDir.exists()) {
                     theDir.mkdirs();
                 }
+                File theDir2 = new File("uploads/" + examId + "/" + rNum + "/images/");
+                if (!theDir2.exists()) {
+                    theDir2.mkdirs();
+                }
                 //storing the new files
-                out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/" + fName);
+                if(fName.endsWith(".jpg")){
+                    System.out.println("Images");
+                    out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/images/" + fName);
+                }else{
+                    out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/" + fName);
+                }
 
             } catch (FileNotFoundException ex) {
                 System.out.println("File not found. ");
