@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class LoginScreen extends javax.swing.JFrame {
 
@@ -21,24 +22,22 @@ public class LoginScreen extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
-    
     //FOR AWS
 //    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
 //    private static final String PASSWORD = "7801898047";
+    private static String DB_URL;
+    private static String JDBC_DRIVER;
+    private static String USER;
+    private static String PASSWORD;
 
-   
-    private static String DB_URL ;
-    private static String JDBC_DRIVER ;
-    private static String USER ;
-    private static  String PASSWORD ;
     public LoginScreen() {
         initComponents();
-        FileReader reader;  
+        FileReader reader;
         try {
             reader = new FileReader("src/database.properties");
-            Properties p = new Properties();  
+            Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
@@ -49,8 +48,6 @@ public class LoginScreen extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
-      
-     
     }
 
     @SuppressWarnings("unchecked")
@@ -205,6 +202,19 @@ public class LoginScreen extends javax.swing.JFrame {
             return;
         }
 
+        try (Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement stmt = con.createStatement()) {
+            Class.forName(JDBC_DRIVER);
+            String sql = "SELECT * FROM exams WHERE examId='" + examId + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+            boolean isSuccess = rs.next();
+            if (!isSuccess) {
+                JOptionPane.showMessageDialog(this, "Exam not found!");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
         var user = new User(rollno, name, (rollno + "_" + name + "_" + examId + ".txt"), examId);
         StudentUI studentExam = new StudentUI(user);
         studentExam.setVisible(true);
@@ -222,6 +232,7 @@ public class LoginScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
         var createExam = new CreateExam();
         createExam.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed

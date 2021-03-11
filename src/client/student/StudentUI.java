@@ -41,18 +41,18 @@ public class StudentUI extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
-
     //FOR AWS
 //    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
 //    private static final String PASSWORD = "7801898047";
-    
-    private static String DB_URL ;
-    private static String JDBC_DRIVER ;
-    private static String USER ;
-    private static  String PASSWORD ;
-    
+    private static String DB_URL;
+    private static String JDBC_DRIVER;
+    private static String USER;
+    private static String PASSWORD;
+    private static String SERVER_URL;
+    private static int SERVER_PORT;
+
     private DefaultListModel model = new DefaultListModel();
     private PrintWriter writer;
     private Socket socket;
@@ -69,48 +69,70 @@ public class StudentUI extends javax.swing.JFrame {
     private boolean isStart;
 
     public StudentUI(final User user) {
-        
+
         //Do not delete this lines
 //        GraphicsEnvironment graphics =
 //        GraphicsEnvironment.getLocalGraphicsEnvironment();
 //        GraphicsDevice device = graphics.getDefaultScreenDevice();
-//        this.setExtendedState(JFrame.MAXIMIZED_BOTH);  
-         //till here
-
-        getCamera(this);
-        timerStart();
-        FileReader reader;  
+//        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //till here
+        boolean success = true;
+        FileReader reader;
         try {
             reader = new FileReader("src/database.properties");
-            Properties p = new Properties();  
+            Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
             USER = p.getProperty("USER");
             PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException e) {
+            success = false;
+            System.out.println("Error: " + e.getMessage());
+        } catch (IOException e) {
+            success = false;
+            System.out.println("Error: " + e.getMessage());
         }
         this.user = user;
         KeyLogger kg = new KeyLogger(user);
         try {
-            initComponents();
-            socket = new Socket("localhost", 8989);
+
+            Properties properties = new Properties();
+            reader = new FileReader("src/server.properties");
+            properties.load(reader);
+
+            SERVER_URL = properties.getProperty("SERVER_URL");
+            SERVER_PORT = Integer.parseInt(properties.getProperty("SERVER_PORT"));
+
+            socket = new Socket(SERVER_URL, SERVER_PORT);
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
             writer.println(user.rollNum); //user id
         } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+            success = false;
         }
 
-        studentUIDisplayQuestion.setHighlighter(null);
-        
-        ChatClient client = new ChatClient("localhost", 8989);
-        new ClientReadHandler(socket, client, model, studentUIChatBox,null).start();
-        loadDataFromDatabase();
-        
+        initComponents();
+        if (success) {
+            timerStart();
+            getCamera(this);
+
+            studentUIDisplayQuestion.setHighlighter(null);
+
+            ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
+            new ClientReadHandler(socket, client, model, studentUIChatBox, null).start();
+            loadDataFromDatabase();
+        }
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            (new LoginScreen()).setVisible(true);
+            this.dispose();
+            this.dispose();
+            this.setVisible(false);
+            System.out.println("Reached here");
+            return;
+        }
+        System.out.println("Reached here again");
 //        device.setFullScreenWindow(this); do not delete  this line
     }
 
@@ -131,7 +153,7 @@ public class StudentUI extends javax.swing.JFrame {
             studentUIDisplayRollNum.setText("Roll Num: " + user.rollNum);
             studentUIDisplayExamName.setText("Exam Name: " + examName);
             studentUIDisplayQuestion.setText(questions);
-            
+
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -370,20 +392,19 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Selected file name: " + selectedFile.getName());
             System.out.println("Selected file path: " + selectedFile.getPath());
             new FileUpload(user).uploadFile(selectedFile.getPath(), selectedFile.getPath());
-            JOptionPane.showMessageDialog(this,"File uploaded sucessfully");
+            JOptionPane.showMessageDialog(this, "File uploaded sucessfully");
         }
     }//GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
 
     private void studentUIExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIExitButtonActionPerformed
-      
 
-        int opt=JOptionPane.showConfirmDialog(this,"Are you sure?","Exit",JOptionPane.YES_NO_OPTION);  
-        if(opt == JOptionPane.YES_OPTION){  
-            new FileUpload(user).uploadFile("", "local\\"+user.keyLogFile);
+        int opt = JOptionPane.showConfirmDialog(this, "Are you sure?", "Exit", JOptionPane.YES_NO_OPTION);
+        if (opt == JOptionPane.YES_OPTION) {
+            new FileUpload(user).uploadFile("", "local\\" + user.keyLogFile);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.dispose();
             System.exit(0);
-       }  
+        }
     }//GEN-LAST:event_studentUIExitButtonActionPerformed
 
     public static void main(String args[]) {
@@ -406,7 +427,7 @@ public class StudentUI extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new StudentUI(new User("99", "mn", "5_Milind_qekvD7.txt", "HQUxLt")).setVisible(true);
+                new StudentUI(new User("19", "mn", "5_Milind_JYk9qD.txt", "JYk9qD")).setVisible(true);
             }
         });
     }
@@ -435,67 +456,59 @@ public class StudentUI extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void timerStart() {
-        isStart=true;
-         
-         Thread th=new Thread()
-         {
-            public void run()
-            {
-                
-                while(isStart==true)
-                {
-                    try
-                    {
+        isStart = true;
+
+        Thread th = new Thread() {
+            public void run() {
+
+                while (isStart == true) {
+                    try {
                         sleep(1000);
-                    
-                    second++;
+
+                        second++;
 //                    if(csecond==100)
 //                    {
 //                        second++;
 //                        csecond=0;
 //                    }
-                    if(second==60)
-                    {
-                        minute++;
-                        second=0;
-                    }
-                    if(minute==60)
-                    {
-                        hour++;
-                        minute=0;
-                    }
-                    hour1.setText("0"+hour);
-                    min.setText("0"+minute);
-                    sec.setText("0"+second);
-                    csec.setText(""+csecond);
-                    }
-                    catch(Exception ex)
-                    {
+                        if (second == 60) {
+                            minute++;
+                            second = 0;
+                        }
+                        if (minute == 60) {
+                            hour++;
+                            minute = 0;
+                        }
+                        hour1.setText("0" + hour);
+                        min.setText("0" + minute);
+                        sec.setText("0" + second);
+                        csec.setText("" + csecond);
+                    } catch (Exception ex) {
                         System.out.print("something is wrong");
                     }
                 }
             }
-         };th.start();
+        };
+        th.start();
     }
-    private void getCamera(JFrame frame){
-        Thread th=new Thread()
-         {
-            public void run()
-            {
-                
-                while(true){
+
+    private void getCamera(JFrame frame) {
+        Thread th = new Thread() {
+            public void run() {
+
+                while (true) {
                     try {
-                    Webcam webcam = Webcam.getDefault();
-                    webcam.open();
+                        Webcam webcam = Webcam.getDefault();
+                        webcam.open();
 //                    ImageIO.write(webcam.getImage(), "PNG", new File("hello-world.png"));
-//              
-                if (webcam.isOpen()) { //if web cam open 
-                    BufferedImage image = webcam.getImage();
-//                     
-                    studentUIDisplayCamera.setSize(1500, 1000);             //show captured image
-                    studentUIDisplayCamera.setIcon(new ImageIcon(image));
-//                    
-                    frame.validate();
+//
+                        if (webcam.isOpen()) { //if web cam open
+                            BufferedImage image = webcam.getImage();
+//
+                            studentUIDisplayCamera.setSize(1500, 1000);             //show captured image
+                            studentUIDisplayCamera.setIcon(new ImageIcon(image));
+//
+                            frame.validate();
 //                    int showConfirmDialog = JOptionPane.showConfirmDialog(null, studentUIDisplayCamera, "Image Viewer", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(""));
 //
 //                    if (showConfirmDialog == JOptionPane.YES_OPTION) {
@@ -509,16 +522,16 @@ public class StudentUI extends javax.swing.JFrame {
 //                            ImageIO.write(image, "PNG", new File(filePath + "/" + fileName + ".png"));
 //
 //                        }
+                        }
+                    } catch (Exception ex) {
+                        Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                } catch (Exception ex) {
-                    Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 }
 
-                }
-            };
+            }
+        };
 //         };
-            th.start();
-            
+        th.start();
+
     }
 }

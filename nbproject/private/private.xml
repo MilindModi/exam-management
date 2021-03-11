@@ -3,8 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Project/File%20Upload/src/client/student/StudentUI.java</file>
-            <file>file:/D:/Project/File%20Upload/src/database.properties</file>
+            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/student/FileUpload.java</file>
+            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/student/StudentUI.java</file>
+            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/LoginScreen.java</file>
+            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/server/FileRecieve.java</file>
+            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/faculty/FacultyUI.java</file>
         </group>
     </open-files>
 </project-private>

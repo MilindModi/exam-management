@@ -3,14 +3,20 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 
 public class FileRecieve {
 
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = null;
+        int FILE_SERVER_PORT = 7000;
 
         try {
-            serverSocket = new ServerSocket(5000);
+            var reader = new FileReader("src/server.properties");
+            Properties p = new Properties();
+            p.load(reader);
+            FILE_SERVER_PORT = Integer.parseInt(p.getProperty("FILE_SERVER_PORT"));
+            serverSocket = new ServerSocket(FILE_SERVER_PORT);
         } catch (IOException ex) {
             System.out.println("Can't setup server on this port number. ");
         }
@@ -22,7 +28,7 @@ public class FileRecieve {
             DataInputStream dis = null;
 
             try {
-                System.out.println("Server is waiting");
+                System.out.println("Listening on port " + FILE_SERVER_PORT + "...");
                 socket = serverSocket.accept();
             } catch (IOException ex) {
                 System.out.println("Can't accept client connection. ");
@@ -42,11 +48,11 @@ public class FileRecieve {
                 final String rNum = dis.readUTF();
                 final String uName = dis.readUTF();
                 final String examId = dis.readUTF();
-                File theDir = new File("uploads/" + examId + "/" + rNum +"/");
+                File theDir = new File("uploads/" + examId + "/" + rNum + "/");
                 if (!theDir.exists()) {
                     theDir.mkdirs();
                 }
-                out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/"+ fName);
+                out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/" + fName);
 
             } catch (FileNotFoundException ex) {
                 System.out.println("File not found. ");

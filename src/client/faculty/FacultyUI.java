@@ -26,18 +26,18 @@ public class FacultyUI extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "root";
 //    private static final String PASSWORD = "";
-
-      //FOR AWS
+    //FOR AWS
 //    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
 //    private static final String PASSWORD = "7801898047";
-    
-    private static String DB_URL ;
-    private static String JDBC_DRIVER ;
-    private static String USER ;
-    private static String PASSWORD ;
-    
+    private static String DB_URL;
+    private static String JDBC_DRIVER;
+    private static String USER;
+    private static String PASSWORD;
+    private static String SERVER_URL;
+    private static int SERVER_PORT;
+
     private final String EXAM_ID;
     private String examName;
     private String facultyUsername;
@@ -50,10 +50,10 @@ public class FacultyUI extends javax.swing.JFrame {
         EXAM_ID = examId;
         initComponents();
         facultyUIComboBox.addItem("Everyone");
-        FileReader reader;  
+        FileReader reader;
         try {
             reader = new FileReader("src/database.properties");
-            Properties p = new Properties();  
+            Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
@@ -67,7 +67,14 @@ public class FacultyUI extends javax.swing.JFrame {
         loadDataFromDatabase();
 
         try {
-            socket = new Socket("localhost", 8989);
+            reader = new FileReader("src/server.properties");
+            Properties p = new Properties();
+            p.load(reader);
+
+            SERVER_URL = p.getProperty("SERVER_URL");
+            SERVER_PORT = Integer.parseInt(p.getProperty("SERVER_PORT"));
+
+            socket = new Socket(SERVER_URL, SERVER_PORT);
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
             writer.println(facultyUsername);
@@ -75,8 +82,8 @@ public class FacultyUI extends javax.swing.JFrame {
             System.out.println("Error: " + e.getMessage());
         }
 
-        ChatClient client = new ChatClient("localhost", 8989);
-        new ClientReadHandler(socket, client, model, facultyUIChatBox,facultyUIComboBox).start();
+        ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
+        new ClientReadHandler(socket, client, model, facultyUIChatBox, facultyUIComboBox).start();
     }
 
     private void loadDataFromDatabase() {
@@ -196,8 +203,8 @@ public class FacultyUI extends javax.swing.JFrame {
     private void facultyUISendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_facultyUISendButtonActionPerformed
         // TODO add your handling code here:
         String sendTo = (String) facultyUIComboBox.getSelectedItem();
-        sendTo = sendTo.startsWith("Everyone") ?"":"@" + sendTo;
-        writer.println(sendTo + " " +facultyUIChatTextBox.getText());
+        sendTo = sendTo.startsWith("Everyone") ? "" : "@" + sendTo;
+        writer.println(sendTo + " " + facultyUIChatTextBox.getText());
         model.addElement(facultyUIChatTextBox.getText());
         facultyUIChatBox.setModel(model);
     }//GEN-LAST:event_facultyUISendButtonActionPerformed

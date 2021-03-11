@@ -7,19 +7,19 @@ import javax.swing.DefaultListModel;
 
 public class ChatServer {
 
-    private final int port;
     private final Map<String, ClientHandler> users = new HashMap<>();
     private DefaultListModel userModel;
+    private final int SERVER_PORT;
 
     public ChatServer(int port) {
-        this.port = port;
+        this.SERVER_PORT = port;
     }
 
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
 
             System.out.println("----- Chat Server -----");
-            System.out.println("Listening on port " + port + "...");
+            System.out.println("Listening on port " + SERVER_PORT + "...");
 
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -35,9 +35,18 @@ public class ChatServer {
     }
 
     public static void main(String[] args) {
-        int port = 8989;
-        ChatServer server = new ChatServer(port);
-        server.start();
+        int port;
+        try {
+            FileReader reader = new FileReader("src/server.properties");
+            Properties p = new Properties();
+            p.load(reader);
+
+            port = Integer.parseInt(p.getProperty("SERVER_PORT"));
+            ChatServer server = new ChatServer(port);
+            server.start();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     void sendToEveryone(String message, ClientHandler notToUser) {
