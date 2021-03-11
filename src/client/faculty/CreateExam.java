@@ -8,10 +8,8 @@ import client.student.StudentUI;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.Properties;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,21 +34,22 @@ public class CreateExam extends javax.swing.JFrame {
 
     public CreateExam() {
         initComponents();
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
+        loadProperties();
+
+        createExamID.setText(EXAM_ID);
+    }
+
+    private void loadProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
             USER = p.getProperty("USER");
             PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-        createExamID.setText(EXAM_ID);
     }
 
     private static String getRandomID(int n) {
@@ -281,16 +280,20 @@ public class CreateExam extends javax.swing.JFrame {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
+
             String sql = "INSERT INTO exams VALUES(?,?,?,?,?,?)";
             PreparedStatement statement = connection.prepareStatement(sql);
+
             statement.setString(1, EXAM_ID);
             statement.setString(2, examName);
             statement.setString(3, questions);
             statement.setString(4, facultyName);
             statement.setString(5, password);
             statement.setLong(6, seconds);
+
             int i = statement.executeUpdate();
             System.out.println("Result: " + i);
+
             var facultyUI = new FacultyUI(EXAM_ID);
             facultyUI.setVisible(true);
             this.dispose();

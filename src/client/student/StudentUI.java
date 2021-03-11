@@ -67,54 +67,21 @@ public class StudentUI extends javax.swing.JFrame {
     private boolean isStart;
 
     public StudentUI(final User user) {
+        initComponents();
+        this.user = user;
 
-        //Do not delete this lines  , I was going to delete it LOL ;-)
+//        Do not delete this lines
 //        GraphicsEnvironment graphics =
 //        GraphicsEnvironment.getLocalGraphicsEnvironment();
 //        GraphicsDevice device = graphics.getDefaultScreenDevice();
 //        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         //till here
         boolean success = true;
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
-            Properties p = new Properties();
-            p.load(reader);
-            DB_URL = p.getProperty("DB_URL");
-            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
-            USER = p.getProperty("USER");
-            PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException e) {
-            success = false;
-            System.out.println("Error: " + e.getMessage());
-        } catch (IOException e) {
-            success = false;
-            System.out.println("Error: " + e.getMessage());
-        }
-        this.user = user;
+        success = loadDatabaseProperties();
+        success = success && loadServerProperties();
+
         KeyLogger kg = new KeyLogger(user);
-        try {
 
-            Properties properties = new Properties();
-            reader = new FileReader("src/server.properties");
-            properties.load(reader);
-
-            SERVER_URL = properties.getProperty("SERVER_URL");
-            SERVER_PORT = Integer.parseInt(properties.getProperty("SERVER_PORT"));
-
-            socket = new Socket(SERVER_URL, SERVER_PORT);
-            OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
-            writer.println(user.rollNum); //user id
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown Host");
-            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
-            this.dispose();
-        } catch (IOException e) {
-            success = false;
-        }
-
-        initComponents();
         if (success) {
             studentUIDisplayQuestion.setHighlighter(null);
 
@@ -132,8 +99,52 @@ public class StudentUI extends javax.swing.JFrame {
             System.out.println("Reached here");
             return;
         }
-        System.out.println("Reached here again");
+
+        System.out.println("Reached here also");
 //        device.setFullScreenWindow(this); do not delete  this line
+    }
+
+    private boolean loadDatabaseProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
+            Properties p = new Properties();
+            p.load(reader);
+            DB_URL = p.getProperty("DB_URL");
+            JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
+            USER = p.getProperty("USER");
+            PASSWORD = p.getProperty("PASSWORD");
+        } catch (FileNotFoundException e) {
+            System.out.println("File Not Found: " + e.getMessage());
+            return false;
+        } catch (IOException e) {
+            System.out.println("I/O Error: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean loadServerProperties() {
+        try (FileReader reader = new FileReader("src/server.properties")) {
+            Properties properties = new Properties();
+            properties.load(reader);
+            SERVER_URL = properties.getProperty("SERVER_URL");
+            SERVER_PORT = Integer.parseInt(properties.getProperty("SERVER_PORT"));
+
+            socket = new Socket(SERVER_URL, SERVER_PORT);
+            OutputStream output = socket.getOutputStream();
+            writer = new PrintWriter(output, true);
+            writer.println(user.rollNum); //user id
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown Host");
+            JOptionPane.showMessageDialog(this, "Error 500: Server error!");
+            this.dispose();
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     private void setEndTime() {
@@ -144,7 +155,7 @@ public class StudentUI extends javax.swing.JFrame {
 
             String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + user.rollNum + " and examId='" + user.examId + "'";
             int i = statement.executeUpdate(sql);
-            System.out.println("End Time Result: " + i);
+            System.out.println("Set End Time Result: " + i);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -175,7 +186,7 @@ public class StudentUI extends javax.swing.JFrame {
             insertStatement.setString(3, user.examId);
 
             int i = insertStatement.executeUpdate();
-            System.out.println("Result: " + i);
+            System.out.println("Student UI Load DB Result: " + i);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -351,11 +362,10 @@ public class StudentUI extends javax.swing.JFrame {
                         .addGap(34, 34, 34)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(5, 5, 5)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(studentUIDisplayExamID)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -363,15 +373,14 @@ public class StudentUI extends javax.swing.JFrame {
                                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel9)
-                                        .addComponent(jLabel1)))
+                                        .addComponent(jLabel1))
+                                    .addComponent(studentUIDisplayExamID))
                                 .addGap(10, 10, 10)
                                 .addComponent(studentUIDisplayExamName)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(studentUIDisplayRollNum)
                                 .addGap(16, 16, 16))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -440,13 +449,17 @@ public class StudentUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -482,8 +495,7 @@ public class StudentUI extends javax.swing.JFrame {
     private void timerStart() {
         Thread th = new Thread() {
             public void run() {
-                System.out.println(duration);
-                long seconds = duration;//databaase connection for duration fetching
+                long seconds = duration;  //databaase connection for duration fetching
                 while (seconds > 0) {
                     int Hours = (int) seconds / 3600;
                     int remainder = (int) seconds - Hours * 3600;
@@ -493,14 +505,14 @@ public class StudentUI extends javax.swing.JFrame {
                     try {
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(StudentUI.class
+                                .getName()).log(Level.SEVERE, null, ex);
                     }
                     --seconds;
                     System.out.println("Hour : " + Hours + " Minutes : " + Minutes + " Seconds : " + Secs);
                     hour1.setText("0" + Hours);
                     min.setText("0" + Minutes);
                     sec.setText("0" + Secs);
-//                    csec.setText(""+csecond);
                 }
                 System.out.println("Exam Khatam");
                 JOptionPane.showMessageDialog(null, "Exam Over!");
@@ -508,41 +520,6 @@ public class StudentUI extends javax.swing.JFrame {
             }
         };
         th.start();
-// dont elete this as of now
-//        isStart = true;
-//
-//        Thread th = new Thread() {
-//            public void run() {
-//
-//                while (isStart == true) {
-//                    try {
-//                        sleep(1000);
-//
-//                        second++;
-////                    if(csecond==100)
-////                    {
-////                        second++;
-////                        csecond=0;
-////                    }
-//                        if (second == 60) {
-//                            minute++;
-//                            second = 0;
-//                        }
-//                        if (minute == 60) {
-//                            hour++;
-//                            minute = 0;
-//                        }
-//                        hour1.setText("0" + hour);
-//                        min.setText("0" + minute);
-//                        sec.setText("0" + second);
-//                        csec.setText("" + csecond);
-//                    } catch (Exception ex) {
-//                        System.out.print("something is wrong");
-//                    }
-//                }
-//            }
-//        };
-//        th.start();
     }
 
     private void getCamera(JFrame frame) {
@@ -577,7 +554,8 @@ public class StudentUI extends javax.swing.JFrame {
 //                        }
                         }
                     } catch (Exception ex) {
-                        Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(StudentUI.class
+                                .getName()).log(Level.SEVERE, null, ex);
                     }
                 }
 

@@ -14,10 +14,12 @@ public class FileUpload {
 
     public FileUpload(User user) {
         this.user = user;
+        loadProperties();
+    }
 
-        try {
+    private void loadProperties() {
+        try (FileReader reader = new FileReader("src/server.properties")) {
             Properties properties = new Properties();
-            FileReader reader = new FileReader("src/server.properties");
             properties.load(reader);
             FILE_SERVER_URL = properties.getProperty("FILE_SERVER_URL");
             FILE_SERVER_PORT = Integer.parseInt(properties.getProperty("FILE_SERVER_PORT"));

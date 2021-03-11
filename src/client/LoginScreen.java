@@ -11,8 +11,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class LoginScreen extends javax.swing.JFrame {
@@ -34,20 +32,35 @@ public class LoginScreen extends javax.swing.JFrame {
 
     public LoginScreen() {
         initComponents();
-        FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
+        loadProperties();
+    }
+
+    private void loadProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
             USER = p.getProperty("USER");
             PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
         }
+    }
+
+    private boolean isValid(String rollno, String name, String examId) {
+        if (rollno == null || rollno.equals("")) {
+            return false;
+        }
+        if (name == null || name.equals("")) {
+            return false;
+        }
+        if (examId == null || examId.equals("")) {
+            return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -192,13 +205,7 @@ public class LoginScreen extends javax.swing.JFrame {
         final String name = studentLoginName.getText();
         final String examId = studentLoginExamId.getText();
 
-        if (rollno == null || rollno.equals("")) {
-            return;
-        }
-        if (name == null || name.equals("")) {
-            return;
-        }
-        if (examId == null || examId.equals("")) {
+        if (!isValid(rollno, name, examId)) {
             return;
         }
 
@@ -250,8 +257,7 @@ public class LoginScreen extends javax.swing.JFrame {
             var isSuccess = rs.next();
 
             if (!isSuccess) {
-                // Some error handling code
-                // show some dialog box
+                JOptionPane.showMessageDialog(this, "Error 404: Not Found!");
                 return;
             }
 

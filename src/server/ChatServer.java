@@ -28,7 +28,7 @@ public class ChatServer {
                 newUser.start();
             }
         } catch (IOException e) {
-            System.out.println("Error in the server: " + e.getMessage());
+            System.out.println("I/O Error: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }

@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+        <file>
+            <url>src/server/FileRecieve.java</url>
+            <bookmark id="1">
+                <name/>
+                <line>12</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/student/FileUpload.java</file>
-            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/student/StudentUI.java</file>
-            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/LoginScreen.java</file>
-            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/server/FileRecieve.java</file>
-            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/faculty/FacultyUI.java</file>
+            <file>file:/D:/Study/MCA/SEM%20IV/Project/ExamMgmt/exam-system/src/client/faculty/CreateExam.java</file>
         </group>
     </open-files>
 </project-private>

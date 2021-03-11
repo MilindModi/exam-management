@@ -20,9 +20,9 @@ public class KeyLoggerFile {
 
     public void keyLoggerWriter(CharSequence log) throws IOException {
         try {
-            myWriter = new FileWriter("local/"+user.keyLogFile, true);
+            myWriter = new FileWriter("local/" + user.keyLogFile, true);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
         myWriter.append(log);
         myWriter.close();

