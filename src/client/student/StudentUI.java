@@ -35,6 +35,7 @@ public class StudentUI extends javax.swing.JFrame {
 //    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 //    private static final String USER = "admin";
 //    private static final String PASSWORD = "7801898047";
+    
     private static String DB_URL;
     private static String JDBC_DRIVER;
     private static String USER;
@@ -499,6 +500,8 @@ public class StudentUI extends javax.swing.JFrame {
             }
         };
         th.start();
+
+
     }
 
     private void getCamera(JFrame frame) {
