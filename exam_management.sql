@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 10, 2021 at 08:23 PM
+-- Generation Time: Mar 11, 2021 at 11:20 AM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.11
 
@@ -33,16 +33,19 @@ CREATE TABLE `exams` (
   `examName` varchar(50) CHARACTER SET utf8mb4 NOT NULL,
   `questions` text CHARACTER SET utf8mb4 NOT NULL,
   `facultyUsername` varchar(50) CHARACTER SET utf8mb4 NOT NULL,
-  `password` varchar(20) CHARACTER SET utf8mb4 NOT NULL
+  `password` varchar(20) CHARACTER SET utf8mb4 NOT NULL,
+  `duration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
 -- Dumping data for table `exams`
 --
 
-INSERT INTO `exams` (`examId`, `examName`, `questions`, `facultyUsername`, `password`) VALUES
-('HQUxLt', 'FON', '1. Q1\n2. Q2', 'JayPatel', 'password'),
-('qekvD7', 'DAD', 'Q1, Q2', 'bhumikashah', 'password');
+INSERT INTO `exams` (`examId`, `examName`, `questions`, `facultyUsername`, `password`, `duration`) VALUES
+('5KWZJ9', 'CC', 'Q1, Q2\nQ3, Q4', 'hardikjoshi', 'qwerty', 10),
+('bOYyya', 'OOAD', 'No questions', 'maitrijhaveri', 'password', 10),
+('HQUxLt', 'FON', '1. Q1\n2. Q2', 'JayPatel', 'password', 3600),
+('qekvD7', 'DAD', 'Q1, Q2', 'bhumikashah', 'password', 3600);
 
 -- --------------------------------------------------------
 
@@ -54,8 +57,22 @@ CREATE TABLE `students` (
   `rollno` int(11) NOT NULL,
   `studentName` varchar(50) NOT NULL,
   `examId` varchar(6) NOT NULL,
-  `startTime` datetime NOT NULL
+  `startTime` datetime NOT NULL DEFAULT current_timestamp(),
+  `endTime` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `students`
+--
+
+INSERT INTO `students` (`rollno`, `studentName`, `examId`, `startTime`, `endTime`) VALUES
+(10, 'Pradip', '5KWZJ9', '2021-03-11 15:12:50', '2021-03-11 15:13:04'),
+(19, 'mn', '5KWZJ9', '2021-03-11 15:30:24', NULL),
+(19, 'mn', '5KWZJ9', '2021-03-11 15:31:41', NULL),
+(19, 'mn', '5KWZJ9', '2021-03-11 15:32:58', NULL),
+(19, 'mn', '5KWZJ9', '2021-03-11 15:34:31', NULL),
+(19, 'mn', '5KWZJ9', '2021-03-11 15:36:25', NULL),
+(19, 'Milind', 'bOYyya', '2021-03-11 15:47:39', NULL);
 
 --
 -- Indexes for dumped tables
