@@ -12,6 +12,7 @@ public class KeyLoggerFile {
 
     public KeyLoggerFile(Student user) {
         this.user = user;
+        // Creating new directory if not exists
         File theDir = new File("local/");
         if (!theDir.exists()) {
             theDir.mkdirs();
@@ -20,11 +21,11 @@ public class KeyLoggerFile {
 
     public void keyLoggerWriter(CharSequence log) throws IOException {
         try {
-            myWriter = new FileWriter("local/"+user.keyLogFile, true);
+            myWriter = new FileWriter("local/"+user.keyLogFile, true); // write key values into file.
         } catch (IOException e) {
             e.printStackTrace();
         }
-        myWriter.append(log);
+        myWriter.append(log); // append key values
         myWriter.close();
     }
 }
