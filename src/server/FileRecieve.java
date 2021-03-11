@@ -57,12 +57,16 @@ public class FileRecieve {
                     theDir.mkdirs();
                 }
                 File theDir2 = new File("uploads/" + examId + "/" + rNum + "/images/");
-                if (!theDir.exists()) {
-                    theDir.mkdirs();
+                if (!theDir2.exists()) {
+                    theDir2.mkdirs();
                 }
                 //storing the new files
-
-                out = new FileOutputStream("uploads/" + examId + "/" + rNum + (fName.endsWith(".jpg") ? "/images/" : "/") + fName);
+                if(fName.endsWith(".jpg")){
+                    System.out.println("Images");
+                    out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/images/" + fName);
+                }else{
+                    out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/" + fName);
+                }
 
             } catch (FileNotFoundException ex) {
                 System.out.println("File not found. ");
