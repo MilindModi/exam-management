@@ -80,7 +80,7 @@ public class StudentUI extends javax.swing.JFrame {
             new ClientReadHandler(socket, client, model, studentUIChatBox, null).start();
             loadDataFromDatabase();
             timerStart(this);
-//            getCamera(this);
+            getCamera(this);
             Runnable r = new Screenshot(this.student);
             new Thread(r).start();
         }

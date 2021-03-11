@@ -58,7 +58,6 @@ public class Screenshot implements Runnable {
             System.out.println("Screenshot saved");
 
             new FileUpload(this.user).uploadFile("", full_path);
-//			new Thread(runns).start();
 
         } catch (AWTException | IOException | InterruptedException ex) {
             System.out.println(ex);
