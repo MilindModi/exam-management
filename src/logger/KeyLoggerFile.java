@@ -13,6 +13,7 @@ public class KeyLoggerFile {
     public KeyLoggerFile(Student user) {
         this.user = user;
         File theDir = new File("local/");
+        // create directory with student info, if not present
         if (!theDir.exists()) {
             theDir.mkdirs();
         }
@@ -24,7 +25,7 @@ public class KeyLoggerFile {
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        myWriter.append(log);
+        myWriter.append(log); // append the key value to the file.
         myWriter.close();
     }
 }

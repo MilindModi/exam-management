@@ -33,16 +33,18 @@ import javax.imageio.ImageIO;
 
 public class StudentUI extends javax.swing.JFrame {
 
-    //FOR LOCALHOST
-//    private static final String DB_URL = "jdbc:mysql://localhost:3306/exam_management";
-//    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-//    private static final String USER = "root";
-//    private static final String PASSWORD = "";
-    //FOR AWS
-//    private static final String DB_URL = "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
-//    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-//    private static final String USER = "admin";
-//    private static final String PASSWORD = "7801898047";
+    // FOR LOCALHOST
+    // private static final String DB_URL =
+    // "jdbc:mysql://localhost:3306/exam_management";
+    // private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    // private static final String USER = "root";
+    // private static final String PASSWORD = "";
+    // FOR AWS
+    // private static final String DB_URL =
+    // "jdbc:mysql://exam-management-aws.cpyjaypv4zdd.us-east-1.rds.amazonaws.com/exam_management";
+    // private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    // private static final String USER = "admin";
+    // private static final String PASSWORD = "7801898047";
     private static String DB_URL;
     private static String JDBC_DRIVER;
     private static String USER;
@@ -71,12 +73,12 @@ public class StudentUI extends javax.swing.JFrame {
         initComponents();
         this.student = student;
 
-//        Do not delete this lines
-//        GraphicsEnvironment graphics =
-//        GraphicsEnvironment.getLocalGraphicsEnvironment();
-//        GraphicsDevice device = graphics.getDefaultScreenDevice();
-//        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //till here
+        // Do not delete this lines
+        // GraphicsEnvironment graphics =
+        // GraphicsEnvironment.getLocalGraphicsEnvironment();
+        // GraphicsDevice device = graphics.getDefaultScreenDevice();
+        // this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        // till here
         boolean success = true;
         success = loadDatabaseProperties();
         success = success && loadServerProperties();
@@ -102,7 +104,7 @@ public class StudentUI extends javax.swing.JFrame {
         }
 
         System.out.println("Reached here also");
-//        device.setFullScreenWindow(this); do not delete  this line
+        // device.setFullScreenWindow(this); do not delete this line
     }
 
     // load database properties from properties file
@@ -138,7 +140,7 @@ public class StudentUI extends javax.swing.JFrame {
             socket = new Socket(SERVER_URL, SERVER_PORT);
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
-            writer.println(student.rollNum); //user id
+            writer.println(student.rollNum); // user id
         } catch (UnknownHostException e) {
             System.out.println("Unknown Host");
             JOptionPane.showMessageDialog(this, "Error 500: Server error!");
@@ -152,12 +154,14 @@ public class StudentUI extends javax.swing.JFrame {
 
     // Sets the end time of student in database
     private void setEndTime() {
-        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement statement = connection.createStatement()) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+                Statement statement = connection.createStatement()) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + student.rollNum + " and examId='" + student.examId + "'";
+            String sql = "UPDATE students SET endTime=current_timestamp() WHERE rollNo=" + student.rollNum
+                    + " and examId='" + student.examId + "'";
             int i = statement.executeUpdate(sql);
             System.out.println("Set End Time Result: " + i);
         } catch (Exception e) {
@@ -168,12 +172,15 @@ public class StudentUI extends javax.swing.JFrame {
     // Loads exam data from database
     private void loadDataFromDatabase() {
         String insert = "INSERT INTO students (rollNo, studentName, examId) VALUES(?,?,?)";
-        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD); Statement fetchStatement = connection.createStatement(); PreparedStatement insertStatement = connection.prepareStatement(insert)) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+                Statement fetchStatement = connection.createStatement();
+                PreparedStatement insertStatement = connection.prepareStatement(insert)) {
             Class.forName(JDBC_DRIVER);
             System.out.println("Creating connection...");
             System.out.println("Creating statement...");
 
-            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='" + student.examId + "'";
+            String sql = "SELECT examName, questions, facultyUsername, duration FROM exams WHERE BINARY examId='"
+                    + student.examId + "'";
             ResultSet rs = fetchStatement.executeQuery(sql);
             rs.next();
             examName = rs.getString("examName");
@@ -198,7 +205,8 @@ public class StudentUI extends javax.swing.JFrame {
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated
+    // Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -297,126 +305,137 @@ public class StudentUI extends javax.swing.JFrame {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(280, 280, 280)
-                .addComponent(studentUIExitButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGap(135, 135, 135)
-                                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addComponent(studentUIDisplayRollNum)
-                                            .addComponent(studentUIDisplayExamName))
-                                        .addGap(288, 288, 288))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(studentUIDisplayExamID)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel1)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(3, 3, 3)
-                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel9))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap(115, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(43, 43, 43)))
-                        .addGap(18, 18, 18))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(studentUISendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(23, 23, 23))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(studentUIUploadPdfButton)
-                        .addGap(69, 69, 69))))
-        );
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup().addGap(280, 280, 280).addComponent(studentUIExitButton)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createSequentialGroup().addGroup(layout
+                        .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup().addGroup(layout
+                                .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
+                                        .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup().addGroup(layout
+                                                .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(layout.createSequentialGroup().addGap(135, 135, 135)
+                                                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(studentUIDisplayRollNum)
+                                                .addComponent(studentUIDisplayExamName)).addGap(288, 288, 288))
+                                        .addGroup(layout.createSequentialGroup().addComponent(studentUIDisplayExamID)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jLabel1).addGap(18, 18, 18)
+                                                .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(3, 3, 3)
+                                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 31,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel9))))
+                                .addGroup(layout.createSequentialGroup().addContainerGap(115, Short.MAX_VALUE)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401,
+                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(43, 43, 43)))
+                                .addGap(18, 18, 18))
+                        .addGroup(layout.createSequentialGroup().addGap(25, 25, 25)
+                                .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.PREFERRED_SIZE, 344,
+                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                                javax.swing.GroupLayout.Alignment.TRAILING,
+                                layout.createSequentialGroup().addGroup(layout
+                                        .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0,
+                                                Short.MAX_VALUE)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(studentUIChatTextBox,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE, 113,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(studentUISendButton, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                        .addGap(23, 23, 23))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(studentUIUploadPdfButton).addGap(69, 69, 69)))));
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {hour1, min, sec});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { hour1, min, sec });
 
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout
+                .createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(34, 34, 34)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel9)
-                                        .addComponent(jLabel1))
-                                    .addComponent(studentUIDisplayExamID))
-                                .addGap(10, 10, 10)
-                                .addComponent(studentUIDisplayExamName)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(studentUIDisplayRollNum)
-                                .addGap(16, 16, 16))
-                            .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createSequentialGroup().addGap(34, 34, 34).addComponent(jScrollPane1,
+                                javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup().addGap(5, 5, 5).addGroup(layout
+                                .createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(layout.createSequentialGroup().addGroup(layout
+                                        .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                .addComponent(min, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(hour1, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(sec, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30,
+                                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabel9).addComponent(jLabel1))
+                                        .addComponent(studentUIDisplayExamID)).addGap(10, 10, 10)
+                                        .addComponent(studentUIDisplayExamName)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(studentUIDisplayRollNum).addGap(16, 16, 16))
+                                .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18).addComponent(
+                                        jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 195,
+                                        javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout
+                        .createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(studentUISendButton))
+                                .addComponent(studentUIChatTextBox, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(studentUISendButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
-                        .addComponent(studentUIUploadPdfButton)
-                        .addGap(5, 5, 5))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(studentUIExitButton)
-                .addContainerGap())
-        );
+                        .addComponent(studentUIUploadPdfButton).addGap(5, 5, 5))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
+                                layout.createSequentialGroup()
+                                        .addComponent(studentUIDisplayCamera, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                .addComponent(studentUIExitButton).addContainerGap()));
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {hour1, min, sec});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] { hour1, min, sec });
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void studentUISendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUISendButtonActionPerformed
+    private void studentUISendButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_studentUISendButtonActionPerformed
         String text = "@" + facultyUsername + " " + studentUIChatTextBox.getText();
         writer.println(text);
         model.addElement(text);
         studentUIChatBox.setModel(model);
-    }//GEN-LAST:event_studentUISendButtonActionPerformed
+    }// GEN-LAST:event_studentUISendButtonActionPerformed
 
-    private void studentUIUploadPdfButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIUploadPdfButtonActionPerformed
+    private void studentUIUploadPdfButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_studentUIUploadPdfButtonActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Documents ONLY", "pdf", "txt"));
@@ -431,9 +450,9 @@ public class StudentUI extends javax.swing.JFrame {
             new FileUpload(student).uploadFile(selectedFile.getPath(), selectedFile.getPath());
             JOptionPane.showMessageDialog(this, "File uploaded sucessfully");
         }
-    }//GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
+    }// GEN-LAST:event_studentUIUploadPdfButtonActionPerformed
 
-    private void studentUIExitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentUIExitButtonActionPerformed
+    private void studentUIExitButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_studentUIExitButtonActionPerformed
 
         int opt = JOptionPane.showConfirmDialog(this, "Are you sure?", "Exit", JOptionPane.YES_NO_OPTION);
         if (opt == JOptionPane.YES_OPTION) {
@@ -443,7 +462,7 @@ public class StudentUI extends javax.swing.JFrame {
             this.dispose();
             System.exit(0);
         }
-    }//GEN-LAST:event_studentUIExitButtonActionPerformed
+    }// GEN-LAST:event_studentUIExitButtonActionPerformed
 
     public static void main(String args[]) {
         try {
@@ -454,17 +473,13 @@ public class StudentUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(StudentUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(StudentUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -501,7 +516,7 @@ public class StudentUI extends javax.swing.JFrame {
     private void timerStart() {
         Thread th = new Thread() {
             public void run() {
-                long seconds = duration;  //databaase connection for duration fetching
+                long seconds = duration; // database connection for duration fetching
                 while (seconds > 0) {
                     int Hours = (int) seconds / 3600;
                     int remainder = (int) seconds - Hours * 3600;
@@ -509,10 +524,9 @@ public class StudentUI extends javax.swing.JFrame {
                     remainder = remainder - Minutes * 60;
                     int Secs = remainder;
                     try {
-                        TimeUnit.SECONDS.sleep(1);
+                        TimeUnit.SECONDS.sleep(1); // sleep for 1 sec
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(StudentUI.class
-                                .getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     --seconds;
                     System.out.println("Hour : " + Hours + " Minutes : " + Minutes + " Seconds : " + Secs);
@@ -536,38 +550,42 @@ public class StudentUI extends javax.swing.JFrame {
                     try {
                         Webcam webcam = Webcam.getDefault();
                         webcam.open();
-//                    ImageIO.write(webcam.getImage(), "PNG", new File("hello-world.png"));
-//
-                        if (webcam.isOpen()) { //if web cam open
+                        // ImageIO.write(webcam.getImage(), "PNG", new File("hello-world.png"));
+                        //
+                        if (webcam.isOpen()) { // if web cam open
                             BufferedImage image = webcam.getImage();
-//
-                            studentUIDisplayCamera.setSize(1500, 1000);             //show captured image
+                            //
+                            studentUIDisplayCamera.setSize(1500, 1000); // show captured image
                             studentUIDisplayCamera.setIcon(new ImageIcon(image));
-//
+                            //
                             frame.validate();
-//                    int showConfirmDialog = JOptionPane.showConfirmDialog(null, studentUIDisplayCamera, "Image Viewer", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(""));
-//
-//                    if (showConfirmDialog == JOptionPane.YES_OPTION) {
-//                        JFileChooser chooser = new JFileChooser();
-//                        chooser.setDialogTitle("Save Image");
-//                        chooser.setFileFilter(new FileNameExtensionFilter("IMAGES ONLY", "png", "jpeg", "jpg")); //this file extentions are shown
-//                        int showSaveDialog = chooser.showSaveDialog(this);
-//                        if (showSaveDialog == 0) {                  //if pressed 'Save' button
-//                            String filePath = chooser.getCurrentDirectory().toString().replace("\\", "/");
-//                            String fileName = chooser.getSelectedFile().getName(); //get user entered file name to save
-//                            ImageIO.write(image, "PNG", new File(filePath + "/" + fileName + ".png"));
-//
-//                        }
+                            // int showConfirmDialog = JOptionPane.showConfirmDialog(null,
+                            // studentUIDisplayCamera, "Image Viewer", JOptionPane.YES_NO_OPTION,
+                            // JOptionPane.QUESTION_MESSAGE, new ImageIcon(""));
+                            //
+                            // if (showConfirmDialog == JOptionPane.YES_OPTION) {
+                            // JFileChooser chooser = new JFileChooser();
+                            // chooser.setDialogTitle("Save Image");
+                            // chooser.setFileFilter(new FileNameExtensionFilter("IMAGES ONLY", "png",
+                            // "jpeg", "jpg")); //this file extentions are shown
+                            // int showSaveDialog = chooser.showSaveDialog(this);
+                            // if (showSaveDialog == 0) { //if pressed 'Save' button
+                            // String filePath = chooser.getCurrentDirectory().toString().replace("\\",
+                            // "/");
+                            // String fileName = chooser.getSelectedFile().getName(); //get user entered
+                            // file name to save
+                            // ImageIO.write(image, "PNG", new File(filePath + "/" + fileName + ".png"));
+                            //
+                            // }
                         }
                     } catch (Exception ex) {
-                        Logger.getLogger(StudentUI.class
-                                .getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
 
             }
         };
-//         };
+        // };
         th.start();
 
     }
