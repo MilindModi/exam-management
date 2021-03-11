@@ -89,7 +89,7 @@ public class StudentUI extends javax.swing.JFrame {
 //        device.setFullScreenWindow(this); //do not delete  this line
     }
 
-    private boolean loadServerProperties() throws NumberFormatException, HeadlessException {
+    private boolean loadServerProperties()  {
         try (final FileReader reader = new FileReader("src/server.properties")) {
             Properties properties = new Properties();
             properties.load(reader);
@@ -105,6 +105,8 @@ public class StudentUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error 500: Server error!");
             this.dispose();
         } catch (IOException e) {
+            return false;
+        }catch (Exception e) {
             return false;
         }
         return true;
