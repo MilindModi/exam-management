@@ -483,12 +483,13 @@ public class StudentUI extends javax.swing.JFrame {
                     remainder = remainder - Minutes * 60;
                     int Secs = remainder;
                     try {
+                        // 1 second delay
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(StudentUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     --seconds;
-                    System.out.println("Hour : " + Hours + " Minutes : " + Minutes + " Seconds : " + Secs);
+                    // System.out.println("Hour : " + Hours + " Minutes : " + Minutes + " Seconds : " + Secs);
                     hour1.setText("0" + Hours);
                     min.setText("0" + Minutes);
                     sec.setText("0" + Secs);
@@ -496,7 +497,7 @@ public class StudentUI extends javax.swing.JFrame {
                 if (seconds < 0) {
                     frame.dispose();
                 }
-                System.out.println("Exam Khatam");
+                // System.out.println("Exam Khatam");
                 JOptionPane.showMessageDialog(null, "Exam Over!");
                 System.exit(0);
             }
