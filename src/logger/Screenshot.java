@@ -70,7 +70,7 @@ public class Screenshot implements Runnable{
 		}
 	}
 	public void run(){
-		for (int i = 0; i < 3 ;i++ ) {		
+		while(true) {		
 			try {
 				Thread.sleep(8000);
 			} 

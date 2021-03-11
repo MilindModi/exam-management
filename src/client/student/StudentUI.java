@@ -1,16 +1,10 @@
 package client.student;
 
-import client.LoginScreen;
 import client.User;
 import client.chat.ChatClient;
 import client.chat.ClientReadHandler;
-import com.github.sarxos.webcam.Webcam;
 import logger.KeyLogger;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.io.*;
-import static java.lang.Thread.sleep;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.*;
@@ -21,17 +15,18 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.jnativehook.GlobalScreen;
-import org.jnativehook.NativeHookException;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import com.github.sarxos.webcam.Webcam;
-import javax.imageio.ImageIO;
 import logger.Screenshot;
 
+
+/**
+ *
+ * @author Milind Modi
+ */
 public class StudentUI extends javax.swing.JFrame {
 
     //FOR LOCALHOST
@@ -70,10 +65,10 @@ public class StudentUI extends javax.swing.JFrame {
     public StudentUI(final User user) {
 
         //Do not delete this lines  , I was going to delete it LOL ;-)
-        GraphicsEnvironment graphics =
-        GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice device = graphics.getDefaultScreenDevice();
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//        GraphicsEnvironment graphics =
+//        GraphicsEnvironment.getLocalGraphicsEnvironment();
+//        GraphicsDevice device = graphics.getDefaultScreenDevice();
+//        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         //till here
         boolean success = true;
         FileReader reader;
@@ -123,12 +118,12 @@ public class StudentUI extends javax.swing.JFrame {
             new ClientReadHandler(socket, client, model, studentUIChatBox, null).start();
             loadDataFromDatabase();
             timerStart(this);
-            getCamera(this);
+//            getCamera(this);
             Runnable r = new Screenshot(this.user);
             new Thread(r).start();
         }
  
-        device.setFullScreenWindow(this); //do not delete  this line
+//        device.setFullScreenWindow(this); //do not delete  this line
     }
 
     private void setEndTime() {
@@ -203,7 +198,6 @@ public class StudentUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        setUndecorated(true);
 
         jScrollPane1.setViewportView(studentUIChatBox);
 

@@ -5,6 +5,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
+/**
+ *
+ * @author Milind Modi
+ */
 public class FileRecieve {
 
     public static void main(String[] args) throws Exception {
@@ -12,6 +16,8 @@ public class FileRecieve {
         int FILE_SERVER_PORT = 7000;
 
         try {
+            
+            //reading the proprities 
             var reader = new FileReader("src/server.properties");
             Properties p = new Properties();
             p.load(reader);
@@ -43,15 +49,18 @@ public class FileRecieve {
 
             long size = 0;
             try {
-                size = dis.readLong();
+                //reading the data sent by client
+                size = dis.readLong(); 
                 final String fName = dis.readUTF();
                 final String rNum = dis.readUTF();
                 final String uName = dis.readUTF();
                 final String examId = dis.readUTF();
+                //creating the directory if not exist
                 File theDir = new File("uploads/" + examId + "/" + rNum + "/");
                 if (!theDir.exists()) {
                     theDir.mkdirs();
                 }
+                //storing the new files
                 out = new FileOutputStream("uploads/" + examId + "/" + rNum + "/" + fName);
 
             } catch (FileNotFoundException ex) {

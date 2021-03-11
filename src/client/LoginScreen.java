@@ -1,14 +1,10 @@
 package client;
 
-import client.chat.ChatClient;
 import client.faculty.FacultyUI;
 import client.faculty.CreateExam;
 import client.student.StudentUI;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -16,8 +12,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class LoginScreen extends javax.swing.JFrame {

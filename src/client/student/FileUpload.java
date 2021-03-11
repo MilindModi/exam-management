@@ -5,6 +5,13 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Properties;
 
+
+/**
+ *
+ * @author Milind Modi
+ * @author Pradip Karmakar
+ * @author Ajinz Rathod
+ */
 public class FileUpload {
 
     private static String FILE_SERVER_URL;
@@ -15,6 +22,7 @@ public class FileUpload {
     public FileUpload(User user) {
         this.user = user;
 
+        //setting up the proprties
         try {
             Properties properties = new Properties();
             FileReader reader = new FileReader("src/server.properties");
